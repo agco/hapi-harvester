@@ -26,12 +26,15 @@ server.register({
         }
     }
 
-    // use the routes.get functions to generate a hapi GET route  
+    // use the routes.get functions to generate a hapi route  
     const brandsGet = hh.routes.get(brands)
-    
-    // register the result as a route with the server
+    // register the result with the server
     server.route(brandsGet)
     
+})
+```
+
+```js
     // register additional routes using routes.getById .post .patch .delete
     server.route(hh.routes.getById(brands))
     server.route(hh.routes.post(brands))
@@ -45,6 +48,18 @@ server.register({
     hh.routes.registerReadonly(brands)
     // get, getById, post 
     hh.routes.registerImmutable(brands)
-    
-})
+```
+
+```js
+
+// brandsGet is a plain hapi route definition
+
+{ method: 'GET',
+  path: '/series',
+  config: { validate: { query: {
+    id: Joi.string().guid().description('id'),
+    filter.
+  }, options: {allowUnknown: true} } },
+  handler: [Function] }
+
 ```
