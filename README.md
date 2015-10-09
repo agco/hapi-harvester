@@ -59,16 +59,15 @@ server.register({
     },
     handler: [Function] }
     
-// which can easily be overridden
-// an options hash parameter is merged on top of the generated route definition
-const brandsGet = hh.routes.get(brands, {
-    config: {
-        auth: false,
-        description: 'Get brands',
-        notes: 'Returns all the brands we are looking for',
-        tags: ['api']
-    }
-})
+// you are in full control to change the object before passing it to server.route
+server.route(_.merge(brandsGet, {
+        config: {
+            auth: false,
+            description: 'Get brands',
+            notes: 'Returns all the brands we are looking for',
+            tags: ['api']
+        }
+    }))
 
 ```
 
@@ -79,11 +78,4 @@ const brandsGet = hh.routes.get(brands, {
     server.route(hh.routes.patch(brands))
     server.route(hh.routes.delete(brands))
     
-    // or even reduce further with the shorthands
-    // get, getById, post, patch, delete
-    hh.routes.register(brands)
-    // get, getById
-    hh.routes.registerReadonly(brands)
-    // get, getById, post 
-    hh.routes.registerImmutable(brands)
 ```
