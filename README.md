@@ -3,7 +3,7 @@
 ## usage
 
 ```js
-const hhPlugin = require('hapi-harvester)
+const hhPlugin = require('hapi-harvester')
 
 server.register({
     register: hhPlugin, 
