@@ -5,6 +5,8 @@
 ```js
 const hhPlugin = require('hapi-harvester')
 
+// initialise server... and register the hh plugin
+
 server.register({
     register: hhPlugin, 
     options: {
@@ -28,10 +30,46 @@ server.register({
 
     // use the routes.get functions to generate a hapi route  
     const brandsGet = hh.routes.get(brands)
-    // register the result with the server
+    // and register the result with the server
     server.route(brandsGet)
     
 })
+```
+
+```js
+
+// brandsGet is a plain hapi route definition
+
+{ method: 'GET',
+  path: '/series',
+  config: { 
+    validate: 
+        { 
+            query: {
+                filter : {
+                    id: Joi.string().guid().description('id'),
+                    code: Joi.string(),
+                    description: Joi.string()
+                } 
+            }, 
+            options: {
+                allowUnknown: true
+            } 
+        } 
+    },
+    handler: [Function] }
+    
+// which can easily be overridden
+// an options hash parameter is merged on top of the generated route definition
+const brandsGet = hh.routes.get(brands, {
+    config: {
+        auth: false,
+        description: 'Get brands',
+        notes: 'Returns all the brands we are looking for',
+        tags: ['api']
+    }
+})
+
 ```
 
 ```js
@@ -48,18 +86,4 @@ server.register({
     hh.routes.registerReadonly(brands)
     // get, getById, post 
     hh.routes.registerImmutable(brands)
-```
-
-```js
-
-// brandsGet is a plain hapi route definition
-
-{ method: 'GET',
-  path: '/series',
-  config: { validate: { query: {
-    id: Joi.string().guid().description('id'),
-    filter.
-  }, options: {allowUnknown: true} } },
-  handler: [Function] }
-
 ```
