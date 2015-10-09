@@ -8,7 +8,7 @@ const hhPlugin = require('hapi-harvester')
 server.register({
     register: hhPlugin, 
     options: {
-       // bootstrap with a pre-built adapter, e.g Mongodb, Redis or roll your own
+       // bootstrap with a adapter, pre-built ones available for Mongodb and Redis
         adapter: require('hapi-harvester/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
         // ...
     }
