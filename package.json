@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/agco/hapi-harvester",
   "dependencies": {
+    "bluebird": "^2.10.2",
     "boom": "^2.9.0",
     "hapi": "^10.4.1",
     "joi": "^6.9.0",
