@@ -1,5 +1,5 @@
 {
-  "name": "hapi-harvester",
+  "name": "harvester",
   "version": "0.1.0",
   "description": "Harvester Hapi Plugin",
   "main": "index.js",
