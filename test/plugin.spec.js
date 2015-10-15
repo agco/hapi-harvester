@@ -50,8 +50,23 @@ describe('Plugin', function() {
 			promises.push(promise)
 		})
 		
-		return server.injectThen({method: 'GET', url: '/chuck'})
 		return Promise.all(promises)
+	})
+	
+	it('only send the available verbs on OPTIONS call', function() {
+
+		const hh = server.plugins.harvester;
+		
+		let promises = [];
+
+		['get', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
+			server.route(hh.routes[verb](schema))
+		})
+		
+		return server.injectThen({method: 'OPTIONS', url: '/brands'})
+		.then(function(res) {
+			expect(res.headers.allow).to.equal('OPTIONS,GET,PUT,POST,PATCH,DELETE')
+		})
 	})
 })
 
