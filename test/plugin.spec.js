@@ -1,10 +1,9 @@
 'use strict'
 
-const hh = require('../')
 const Joi = require('joi')
 const Promise = require('bluebird')
 
-let server, buildServer, destroyServer;
+let server, buildServer, destroyServer, hh;
 
 const schema = {
 	type: 'brands',
@@ -35,8 +34,6 @@ describe('Plugin', function() {
 	})
 	
 	it('all the REST verbs available', function() {
-
-		const hh = server.plugins.harvester;
 		
 		let promises = [];
 
@@ -53,11 +50,7 @@ describe('Plugin', function() {
 		return Promise.all(promises)
 	})
 	
-	it('only send the available verbs on OPTIONS call', function() {
-
-		const hh = server.plugins.harvester;
-		
-		let promises = [];
+	it('only sends the available verbs on OPTIONS call', function() {
 
 		['get', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
 			server.route(hh.routes[verb](schema))
@@ -67,6 +60,57 @@ describe('Plugin', function() {
 		.then(function(res) {
 			expect(res.headers.allow).to.equal('OPTIONS,GET,PUT,POST,PATCH,DELETE')
 		})
+	})
+	
+	it('should set the content-type header to application/json by default', function() {
+		server.route(hh.routes.get(schema))
+  		return server.injectThen({method: 'GET', url: '/brands'})
+		.then((res) => {
+			expect(res.headers['content-type']).to.equal('application/json; charset=utf-8')
+		})
+	})
+	
+	it('should reject all request with content-type not set to application/json', function() {
+
+		let promises = [];
+
+		['put', 'post', 'patch'].forEach(function(verb) {
+			server.route(hh.routes[verb](schema))
+			
+			let headers = {
+				'content-type' : 'text/html'
+			} 
+			
+			let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands', headers : headers}).then((res) => {
+				expect(res.statusCode).to.equal(415)
+				
+			})
+			
+			promises.push(promise)
+		})
+		
+		return Promise.all(promises)
+	})
+	
+	it('should allow all request with content-type set to application/json', function() {
+
+		let promises = [];
+
+		['put', 'post', 'patch'].forEach(function(verb) {
+			server.route(hh.routes[verb](schema))
+			
+			let headers = {
+				'content-type' : 'application/json'
+			} 
+
+			let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands', headers : headers}).then((res) => {
+				expect(res.statusCode).to.equal(200)
+			})
+			
+			promises.push(promise)
+		})
+		
+		return Promise.all(promises)
 	})
 })
 
@@ -78,6 +122,7 @@ buildServer = function(done) {
 		{register: require('../lib/plugin')},
 		{register: require('inject-then')}
 	], () => {
+		hh = server.plugins.harvester;
 		server.start(done)	
 	})
 }
