@@ -73,11 +73,13 @@ describe('Plugin', function() {
 buildServer = function(done) {
 	const Hapi = require('hapi')
 	server = new Hapi.Server()
-    server.connection()
+	server.connection({port : 9100})
 	server.register([
 		{register: require('../lib/plugin')},
 		{register: require('inject-then')}
-	], done)
+	], () => {
+		server.start(done)	
+	})
 }
 
 destroyServer = function(done) {
