@@ -13,7 +13,7 @@ const schema = {
 	}
 };
 
-describe('Plugin', function() {
+describe('Plugin Basics', function() {
 	beforeEach(function(done) {
 		buildServer(done);
 	})
@@ -116,10 +116,11 @@ describe('Plugin', function() {
 
 buildServer = function(done) {
 	const Hapi = require('hapi')
+	let adapter = require('../lib/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
 	server = new Hapi.Server()
 	server.connection({port : 9100})
 	server.register([
-		{register: require('../lib/plugin')},
+		{register: require('../lib/plugin'), options: {adapter : 'mongodb'}},
 		{register: require('inject-then')}
 	], () => {
 		hh = server.plugins.harvester;
