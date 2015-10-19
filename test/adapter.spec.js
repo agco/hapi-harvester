@@ -22,7 +22,7 @@ describe('Adapter Validation', function() {
     })
     
     it('Will check the given adapter for the required functions', function() {
-        let adapter = require('../lib/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
+        let adapter = require('../').getAdapter('mongodb')
         
         adapter = _.remove(adapter, 'delete');
         
@@ -44,17 +44,14 @@ describe('Adapter Validation', function() {
     })
     
     it('Will won\'t accept a string adapter if it doesn\'t exist ', function() {
-        let adapter = require('../lib/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
-        
-        adapter = _.remove(adapter, 'delete');
-        
         //rebuild server with the aling adapter
         server = new Hapi.Server()
         server.connection({port : 9100})
         
         let serverSetup = function() {
+            let adapter = require('../').getAdapter('nonexistant')
             server.register([
-                {register: require('../lib/plugin'), options: {adapter : 'notexistentdb'}},
+                {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}
             ], () => {
                 hh = server.plugins.harvester;
