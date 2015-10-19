@@ -1,8 +1,8 @@
 'use strict'
 
 const _ = require('lodash')
-const Joi = require('joi')
 const Promise = require('bluebird')
+const Joi = require('joi')
 const Hapi = require('hapi')
 
 let server, buildServer, destroyServer, hh;
@@ -12,6 +12,13 @@ const schema = {
     attributes: {
         code: Joi.string().min(2).max(10),
         description: Joi.string()
+    }
+};
+
+const data = {
+    attributes: {
+        code: 'MF',
+        description: 'Massey Furgeson'
     }
 };
 
@@ -25,28 +32,37 @@ describe('Rest operations', function() {
         destroyServer(done)
     })
     
-    it('Will be able to get from /brands', function() {
-        const data = {
-            attributes: {
-                code: 'MF',
-                description: 'Massey Furgeson'
-            }
-        };
-        
-        return server.injectThen({method: 'post', url: '/brands', payload: {data}}).then((res) => {
-            var result = _.omit(res.result, 'id');
+    it('Will be able to get by id from /brands', function() {
+        return server.injectThen({method: 'post', url: '/brands', payload: {data}})
+        .then((res) => {
+            return server.injectThen({method: 'get', url: '/brands/' + res.result.data.id})
+        })
+        .then((res) => {
             expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
             expect(utils.getData(res)).to.deep.equal(data)
         })
     })
     
+    it.only('Will be able to get all from /brands', function() {
+        let promises = [];
+        
+        _.times(10, () => {
+            promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data}}))
+        })
+        
+        return Promise.all(promises)
+        .then((res) => {
+            return server.injectThen({method: 'get', url: '/brands'})
+        })
+        .then((res) => {
+            res.result.data.forEach((data) => {
+                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(data).to.deep.equal(data)  
+            })
+        })
+    })
+    
     it('Will be able to post to /brands', function() {
-        const data = {
-            attributes: {
-                code: 'MF',
-                description: 'Massey Furgeson'
-            }
-        };
         
         return server.injectThen({method: 'post', url: '/brands', payload: {data}}).then((res) => {
             var result = _.omit(res.result, 'id');
@@ -68,7 +84,7 @@ buildServer = function(done) {
     ], () => {
         hh = server.plugins.harvester;
         server.start(() => {
-            ['get', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
+            ['get', 'getById', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
                 server.route(hh.routes[verb](schema))
             })
             done()  
@@ -77,5 +93,8 @@ buildServer = function(done) {
 }
 
 destroyServer = function(done) {
-    server.stop(done)
+    utils.removeFromDB(server, 'brands')
+    .then((res) => {
+        server.stop(done)  
+    })
 }
