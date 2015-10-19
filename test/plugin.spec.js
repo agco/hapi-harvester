@@ -116,11 +116,12 @@ describe('Plugin Basics', function() {
 
 buildServer = function(done) {
     const Hapi = require('hapi')
-    let adapter = require('../lib/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
+    const plugin = require('../')
+    let adapter = plugin.getAdapter('mongodb')
     server = new Hapi.Server()
     server.connection({port : 9100})
     server.register([
-        {register: require('../lib/plugin'), options: {adapter: 'mongodb'}},
+        {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
         {register: require('inject-then')}
     ], () => {
         hh = server.plugins.harvester;
