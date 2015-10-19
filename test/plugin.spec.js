@@ -41,7 +41,7 @@ describe('Plugin Basics', function() {
             server.route(hh.routes[verb](schema))
             
             let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands'}).then((res) => {
-                expect(res.result).to.deep.equal({ foo: 'bar' })
+                expect(res.statusCode).to.be.within(200, 201)
             })
             
             promises.push(promise)
@@ -104,7 +104,7 @@ describe('Plugin Basics', function() {
             } 
 
             let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands', headers : headers}).then((res) => {
-                expect(res.statusCode).to.equal(200)
+                expect(res.statusCode).to.be.within(200, 201)
             })
             
             promises.push(promise)
@@ -123,7 +123,7 @@ buildServer = function(done) {
     server.register([
         {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
         {register: require('inject-then')}
-    ], () => {
+    ], function() {
         hh = server.plugins.harvester;
         server.start(done)  
     })
