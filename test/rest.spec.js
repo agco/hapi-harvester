@@ -70,7 +70,7 @@ describe('Rest operations', function() {
         })
     })
     
-    it.only('Will be able to update using PUT in /brands', function() {
+    it('Will be able to update using PUT in /brands', function() {
         const payload = {
             attributes: {
                 code: 'VT',
@@ -79,8 +79,24 @@ describe('Rest operations', function() {
         };
         return server.injectThen({method: 'post', url: '/brands', payload: {data : payload}})
         .then((res) => {
-            
             return server.injectThen({method: 'put', url: '/brands', payload: {data}})
+        })
+        .then((res) => {
+            expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+            expect(utils.getData(res)).to.deep.equal(payload)
+        })
+    })
+    
+    it('Will be able to update using PATCH in /brands', function() {
+        const payload = {
+            attributes: {
+                code: 'VT',
+                description: 'Valtra'
+            }
+        };
+        return server.injectThen({method: 'post', url: '/brands', payload: {data : payload}})
+        .then((res) => {
+            return server.injectThen({method: 'patch', url: '/brands', payload: {data}})
         })
         .then((res) => {
             expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
