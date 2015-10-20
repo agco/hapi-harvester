@@ -22,7 +22,7 @@ const data = {
     }
 };
 
-describe('Rest operations', function() {
+describe('Rest operations when things go right', function() {
     
     beforeEach(function(done) {
         buildServer(done)
@@ -101,6 +101,27 @@ describe('Rest operations', function() {
         .then((res) => {
             expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
             expect(utils.getData(res)).to.deep.equal(payload)
+        })
+    })
+})
+
+describe('Rest operations when things go wrong', function() {
+    
+    beforeEach(function(done) {
+        buildServer(done)
+    })
+    
+    afterEach(function(done) {
+        destroyServer(done)
+    })
+    
+    it('Won\'t be able to POST to /brands with a payload that doesn\'t match the schema', function() {
+        
+        let payload = _.cloneDeep(data);
+        payload.foo = 'bar'
+        
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
         })
     })
 })

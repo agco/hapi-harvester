@@ -33,23 +33,6 @@ describe('Plugin Basics', function() {
         })
     })
     
-    it('all the REST verbs available', function() {
-        
-        let promises = [];
-
-        ['get', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
-            server.route(hh.routes[verb](schema))
-            
-            let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands'}).then((res) => {
-                expect(res.statusCode).to.be.within(200, 201)
-            })
-            
-            promises.push(promise)
-        })
-        
-        return Promise.all(promises)
-    })
-    
     it('only sends the available verbs on OPTIONS call', function() {
 
         ['get', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
