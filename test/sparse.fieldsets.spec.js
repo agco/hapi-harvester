@@ -24,7 +24,7 @@ const data = {
 
 
 //TODO just done the validation, actual includes is remaining
-describe('Inclusion', function() {
+describe('Sparse Fieldsets', function() {
     
     beforeEach(function(done) {
         buildServer(() => {
@@ -45,8 +45,20 @@ describe('Inclusion', function() {
         destroyServer(done)
     })
     
-    it('Will be able to GET all from /brands with a inclusion', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code'})
+    it('Will be able to GET all from /brands with a sparse fieldset', function() {
+        
+        return server.injectThen({method: 'get', url: '/brands?include=code&fields[description]=Massey Furgeson'})
+        .then((res) => {
+            res.result.data.forEach((data) => {
+                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(data).to.deep.equal(data)  
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with multiple fieldset', function() {
+        
+        return server.injectThen({method: 'get', url: '/brands?fields[code]=MS&fields[description]=Massey Furgeson'})
         .then((res) => {
             res.result.data.forEach((data) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
@@ -55,20 +67,11 @@ describe('Inclusion', function() {
         })
     })
     
-    it('Will be able to GET all from /brands with multiple inclusions', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code,description'})
+    it('Won\'t be able to GET all from /brands with multiple fieldset where one is not available in attributes', function() {
+        
+        return server.injectThen({method: 'get', url: '/brands?fields[foo]=bar&fields[description]=Massey Furgeson'})
         .then((res) => {
-            res.result.data.forEach((data) => {
-                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)
-            })
-        })
-    })
-    
-    it('Won\'t be able to GET all from /brands with an inclusion not available in attributes', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code,foo'})
-        .then((res) => {
-            expect(res.statusCode).to.equal(400)
+            expect(res.statusCode).to.equal(400)  
         })
     })
 })
