@@ -124,6 +124,16 @@ describe('Rest operations when things go wrong', function() {
             expect(res.statusCode).to.equal(400)
         })
     })
+    
+    it('Won\'t be able to POST to /brands with a payload that has attributes that don\'t match the schema', function() {
+        
+        let payload = _.cloneDeep(data);
+        payload.attributes.foo = 'bar'
+        
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
+        })
+    })
 })
 
 buildServer = function(done) {

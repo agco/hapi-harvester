@@ -13,6 +13,13 @@ const schema = {
     }
 };
 
+const data = {
+    attributes: {
+        code: 'MF',
+        description: 'Massey Furgeson'
+    }
+};
+
 describe('Plugin Basics', function() {
     beforeEach(function(done) {
         buildServer(done);
@@ -76,24 +83,16 @@ describe('Plugin Basics', function() {
     })
     
     it('should allow all request with content-type set to application/json', function() {
-
-        let promises = [];
-
-        ['put', 'post', 'patch'].forEach(function(verb) {
-            server.route(hh.routes[verb](schema))
-            
-            let headers = {
-                'content-type' : 'application/json'
-            } 
-
-            let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands', headers : headers}).then((res) => {
-                expect(res.statusCode).to.be.within(200, 201)
-            })
-            
-            promises.push(promise)
-        })
+        let headers = {
+            'content-type' : 'application/json'
+        }
         
-        return Promise.all(promises)
+        server.route(hh.routes.post(schema))
+        
+        server.injectThen({method: 'post', url: '/brands', headers: headers, payload: {data}})
+            .then((res) => {
+                expect(res.statusCode).to.equal(201)
+            })
     })
 })
 
