@@ -28,7 +28,7 @@ const data = {
 
 
 //TODO just done the validation, actual includes is remaining
-describe('Filtering', function() {
+describe.only('Filtering', function() {
     
     beforeEach(function(done) {
         buildServer(() => {
