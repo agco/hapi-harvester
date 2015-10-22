@@ -176,7 +176,6 @@ buildServer = function(done) {
 }
 
 destroyServer = function(done) {
-    return server.stop(done)  
     utils.removeFromDB(server, 'brands')
     .then((res) => {
         server.stop(done)  
