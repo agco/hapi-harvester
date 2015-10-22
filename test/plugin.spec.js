@@ -42,13 +42,13 @@ describe('Plugin Basics', function() {
     
     it('only sends the available verbs on OPTIONS call', function() {
 
-        ['get', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
+        ['get', 'post', 'patch', 'delete'].forEach(function(verb) {
             server.route(hh.routes[verb](schema))
         })
         
         return server.injectThen({method: 'OPTIONS', url: '/brands'})
         .then(function(res) {
-            expect(res.headers.allow).to.equal('OPTIONS,GET,PUT,POST,PATCH,DELETE')
+            expect(res.headers.allow).to.equal('OPTIONS,GET,POST,PATCH,DELETE')
         })
     })
     

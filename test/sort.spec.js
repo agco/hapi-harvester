@@ -85,7 +85,7 @@ buildServer = function(done) {
     ], () => {
         hh = server.plugins.harvester;
         server.start(() => {
-            ['get', 'getById', 'put', 'post', 'patch', 'delete'].forEach(function(verb) {
+            ['get', 'getById', 'post', 'patch', 'delete'].forEach(function(verb) {
                 server.route(hh.routes[verb](schema))
             })
             done()  
