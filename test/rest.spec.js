@@ -132,7 +132,7 @@ describe('Rest operations when things go wrong', function() {
 buildServer = function(done) {
     const Hapi = require('hapi')
     const plugin = require('../')
-    let adapter = plugin.getAdapter('mongodb')
+    const adapter = plugin.getAdapter('mongodb')
     server = new Hapi.Server()
     server.connection({port : 9100})
     server.register([

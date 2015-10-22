@@ -30,7 +30,7 @@ describe('Adapter Validation', function() {
         server = new Hapi.Server()
         server.connection({port : 9100})
         
-        let serverSetup = function() {
+        const serverSetup = function() {
             server.register([
                 {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}
@@ -48,8 +48,8 @@ describe('Adapter Validation', function() {
         server = new Hapi.Server()
         server.connection({port : 9100})
         
-        let serverSetup = function() {
-            let adapter = require('../').getAdapter('nonexistant')
+        const serverSetup = function() {
+            const adapter = require('../').getAdapter('nonexistant')
             server.register([
                 {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}

@@ -62,7 +62,7 @@ describe('Plugin Basics', function() {
     
     it('should reject all request with content-type not set to application/json', function() {
         
-        let headers = {
+        const headers = {
             'content-type' : 'text/html'
         }
         
@@ -74,7 +74,7 @@ describe('Plugin Basics', function() {
     })
     
     it('should allow all request with content-type set to application/json', function() {
-        let headers = {
+        const headers = {
             'content-type' : 'application/json'
         }
         
@@ -90,7 +90,7 @@ describe('Plugin Basics', function() {
 buildServer = function(done) {
     const Hapi = require('hapi')
     const plugin = require('../')
-    let adapter = plugin.getAdapter('mongodb')
+    const adapter = plugin.getAdapter('mongodb')
     server = new Hapi.Server()
     server.connection({port : 9100})
     server.register([
