@@ -28,14 +28,17 @@ const data = {
 
 
 //TODO just done the validation, actual includes is remaining
-describe.only('Filtering', function() {
+describe('Filtering', function() {
     
     beforeEach(function(done) {
         buildServer(() => {
             let promises = [];
         
-            _.times(10, () => {
-                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data}}))
+            _.times(10, (index) => {
+                let payload = Object.assign({}, data)
+                payload.attributes.year = 2000 + index;
+                payload.attributes.series = 0 + index;
+                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data : payload}}))
             })
             
             return Promise.all(promises)
@@ -49,12 +52,36 @@ describe.only('Filtering', function() {
         destroyServer(done)
     })
     
-    it('Will be able to GET all from /brands with a filtering param', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code&filter[year]=gt=2006'})
+    it('Will be able to GET all from /brands with a equal filtering param', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=2007'})
         .then((res) => {
-            res.result.data.forEach((data) => {
+            expect(res.result.data).to.have.length(1)
+            expect(res.result.data[0].attributes).to.deep.equal({
+                code: 'MF',
+                year: 2007,
+                series: 7,
+                description: 'Massey Furgeson'
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a comparator filtering param', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=gt=2005'})
+        .then((res) => {
+            expect(res.result.data).to.have.length(4)
+            
+            var expectedResponses = _.times(4, (index) => {
+                return {
+                    code: 'MF',
+                    year: 2006 + index,
+                    series: 6 + index,
+                    description: 'Massey Furgeson'
+                }
+            })
+            
+            res.result.data.forEach((data, index) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)  
+                expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
             })
         })
     })
