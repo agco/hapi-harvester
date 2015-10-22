@@ -77,23 +77,12 @@ describe('Sparse Fieldsets', function() {
 })
 
 buildServer = function(done) {
-    const Hapi = require('hapi')
-    const plugin = require('../')
-    const adapter = plugin.getAdapter('mongodb')
-    server = new Hapi.Server()
-    server.connection({port : 9100})
-    server.register([
-        {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
-        {register: require('inject-then')}
-    ], () => {
-        hh = server.plugins.harvester;
-        server.start(() => {
-            ['get', 'getById', 'post', 'patch', 'delete'].forEach(function(verb) {
-                server.route(hh.routes[verb](schema))
-            })
-            done()  
-        })  
-    })
+    return utils.buildServer(schema)
+        .then((res) => {
+            server = res.server;
+            hh = res.hh;
+            done()
+        })
 }
 
 destroyServer = function(done) {
