@@ -61,25 +61,16 @@ describe('Plugin Basics', function() {
     })
     
     it('should reject all request with content-type not set to application/json', function() {
-
-        let promises = [];
-
-        ['put', 'post', 'patch'].forEach(function(verb) {
-            server.route(hh.routes[verb](schema))
-            
-            let headers = {
-                'content-type' : 'text/html'
-            } 
-            
-            let promise = server.injectThen({method: verb.toUpperCase(), url: '/brands', headers : headers}).then((res) => {
-                expect(res.statusCode).to.equal(415)
-                
-            })
-            
-            promises.push(promise)
-        })
         
-        return Promise.all(promises)
+        let headers = {
+            'content-type' : 'text/html'
+        }
+        
+        server.route(hh.routes.post(schema))
+
+       return server.injectThen({method: 'post', url: '/brands', headers : headers}).then((res) => {
+            expect(res.statusCode).to.equal(415)
+        })
     })
     
     it('should allow all request with content-type set to application/json', function() {

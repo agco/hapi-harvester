@@ -70,16 +70,16 @@ describe('Rest operations when things go right', function() {
         })
     })
     
-    it('Will be able to update using PUT in /brands', function() {
+    it('Will be able to PATCH in /brands', function() {
         const payload = {
             attributes: {
                 code: 'VT',
                 description: 'Valtra'
             }
         };
-        return server.injectThen({method: 'post', url: '/brands', payload: {data : payload}})
+        return server.injectThen({method: 'post', url: '/brands', payload: {data}})
         .then((res) => {
-            return server.injectThen({method: 'put', url: '/brands', payload: {data}})
+            return server.injectThen({method: 'patch', url: '/brands/' + res.result.data.id, payload: {data : payload}})
         })
         .then((res) => {
             expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
@@ -87,20 +87,13 @@ describe('Rest operations when things go right', function() {
         })
     })
     
-    it('Will be able to update using PATCH in /brands', function() {
-        const payload = {
-            attributes: {
-                code: 'VT',
-                description: 'Valtra'
-            }
-        };
-        return server.injectThen({method: 'post', url: '/brands', payload: {data : payload}})
+    it('Will be able to DELETE in /brands', function() {
+        return server.injectThen({method: 'post', url: '/brands', payload: {data}})
         .then((res) => {
-            return server.injectThen({method: 'patch', url: '/brands', payload: {data}})
+            return server.injectThen({method: 'delete', url: '/brands/' + res.result.data.id})
         })
         .then((res) => {
-            expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-            expect(utils.getData(res)).to.deep.equal(payload)
+            expect(res.statusCode).to.equal(204)
         })
     })
 })
@@ -157,6 +150,7 @@ buildServer = function(done) {
 }
 
 destroyServer = function(done) {
+    return server.stop(done)  
     utils.removeFromDB(server, 'brands')
     .then((res) => {
         server.stop(done)  
