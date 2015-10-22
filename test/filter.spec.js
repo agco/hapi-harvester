@@ -65,7 +65,7 @@ describe('Filtering', function() {
         })
     })
     
-    it('Will be able to GET all from /brands with a comparator filtering param', function() {
+    it('Will be able to GET all from /brands with a "greater than" comparator filtering param', function() {
         return server.injectThen({method: 'get', url: '/brands?filter[year]=gt=2005'})
         .then((res) => {
             expect(res.result.data).to.have.length(4)
@@ -82,6 +82,104 @@ describe('Filtering', function() {
             res.result.data.forEach((data, index) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
                 expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a "greater than equal" comparator filtering param', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=gte=2005'})
+        .then((res) => {
+            expect(res.result.data).to.have.length(5)
+            
+            var expectedResponses = _.times(5, (index) => {
+                return {
+                    code: 'MF',
+                    year: 2005 + index,
+                    series: 5 + index,
+                    description: 'Massey Furgeson'
+                }
+            })
+            
+            res.result.data.forEach((data, index) => {
+                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a "less than" comparator filtering param', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=lt=2005'})
+        .then((res) => {
+            expect(res.result.data).to.have.length(5)
+            
+            var expectedResponses = _.times(5, (index) => {
+                return {
+                    code: 'MF',
+                    year: 2004 - index,
+                    series: 4 - index,
+                    description: 'Massey Furgeson'
+                }
+            })
+            
+            res.result.data.forEach((data, index) => {
+                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a "less than equal" comparator filtering param', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=lte=2005'})
+        .then((res) => {
+            expect(res.result.data).to.have.length(6)
+            
+            var expectedResponses = _.times(6, (index) => {
+                return {
+                    code: 'MF',
+                    year: 2005 - index,
+                    series: 5 - index,
+                    description: 'Massey Furgeson'
+                }
+            })
+            
+            res.result.data.forEach((data, index) => {
+                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a combination of comparator filtering params', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=lte=2005&filter[series]=gte=3'})
+        .then((res) => {
+            expect(res.result.data).to.have.length(3)
+            
+            var expectedResponses = _.times(3, (index) => {
+                return {
+                    code: 'MF',
+                    year: 2005 - index,
+                    series: 5 - index,
+                    description: 'Massey Furgeson'
+                }
+            })
+            
+            res.result.data.forEach((data, index) => {
+                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
+            })
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a combination of comparator and equal filtering params', function() {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=lte=2005&filter[series]=3'})
+        .then((res) => {
+            expect(res.result.data).to.have.length(1)
+            
+            expect(res.result.data[0].attributes).to.deep.equal({
+                code: 'MF',
+                year: 2003,
+                series: 3,
+                description: 'Massey Furgeson'
             })
         })
     })
