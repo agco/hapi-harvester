@@ -11,17 +11,18 @@ const schema = {
     type: 'brands',
     attributes: {
         code: Joi.string().min(2).max(10),
-        description: Joi.string()
+        description: Joi.string(),
+        year: Joi.number()
     }
 };
 
 const data = {
     attributes: {
         code: 'MF',
-        description: 'Massey Furgeson'
+        description: 'Massey Furgeson',
+        year: 2000
     }
 };
-
 
 //TODO just done the validation, actual includes is remaining
 describe('Paging', function() {
@@ -30,8 +31,10 @@ describe('Paging', function() {
         buildServer(() => {
             let promises = [];
         
-            _.times(10, () => {
-                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data}}))
+           _.times(50, (index) => {
+                let payload = Object.assign({}, data)
+                payload.attributes.year = 2000 + index;
+                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}))
             })
             
             return Promise.all(promises)
@@ -46,21 +49,22 @@ describe('Paging', function() {
     })
     
     it('Will be able to GET all from /brands with a paging param', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code&page[limit]=100'})
+        return server.injectThen({method: 'get', url: '/brands?sort=year&page[limit]=10'})
         .then((res) => {
-            res.result.data.forEach((data) => {
+            expect(res.result.data).to.have.length(10)
+            res.result.data.forEach((data, index) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)  
+                expect(data.attributes.year).to.equal(2000 + index) 
             })
         })
     })
     
     it('Will be able to GET all from /brands with multiple paging params', function() {
-        return server.injectThen({method: 'get', url: '/brands?page[offset]=1000&page[limit]=100'})
+        return server.injectThen({method: 'get', url: '/brands?sort=year&page[offset]=20&page[limit]=10'})
         .then((res) => {
-            res.result.data.forEach((data) => {
+            res.result.data.forEach((data, index) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)
+                expect(data.attributes.year).to.equal(2020 + index)
             })
         })
     })
