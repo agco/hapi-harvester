@@ -127,6 +127,32 @@ describe('Rest operations when things go wrong', function() {
             expect(res.statusCode).to.equal(400)
         })
     })
+    
+    it('Won\'t be able to GET by id from /brands if id is wrong', function() {
+        return server.injectThen({method: 'post', url: '/brands', payload: {data}})
+        .then((res) => {
+            return server.injectThen({method: 'get', url: '/brands/foo'})
+        })
+        .then((res) => {
+            expect(res.statusCode).to.equal(404)
+        })
+    })
+    
+    it('Will be able to PATCH in /brands with wrong id', function() {
+        const payload = {
+            attributes: {
+                code: 'VT',
+                description: 'Valtra'
+            }
+        };
+        return server.injectThen({method: 'post', url: '/brands', payload: {data}})
+        .then((res) => {
+            return server.injectThen({method: 'patch', url: '/brands/foo', payload: {data : payload}})
+        })
+        .then((res) => {
+            expect(res.statusCode).to.equal(404)
+        })
+    })
 })
 
 buildServer = function(done) {
