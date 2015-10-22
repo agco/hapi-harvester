@@ -11,14 +11,16 @@ const schema = {
     type: 'brands',
     attributes: {
         code: Joi.string().min(2).max(10),
-        description: Joi.string()
+        description: Joi.string(),
+        year: Joi.number()
     }
 };
 
 const data = {
     attributes: {
         code: 'MF',
-        description: 'Massey Furgeson'
+        description: 'Massey Furgeson',
+        year: 2007
     }
 };
 
@@ -48,9 +50,10 @@ describe('Inclusion', function() {
     it('Will be able to GET all from /brands with a inclusion', function() {
         return server.injectThen({method: 'get', url: '/brands?include=code'})
         .then((res) => {
-            res.result.data.forEach((data) => {
-                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)
+            res.result.data.forEach((result) => {
+                let dataToCompare = _.pick(data.attributes, 'code')
+                expect(result.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(result.attributes).to.deep.equal(dataToCompare)
             })
         })
     })
@@ -58,9 +61,10 @@ describe('Inclusion', function() {
     it('Will be able to GET all from /brands with multiple inclusions', function() {
         return server.injectThen({method: 'get', url: '/brands?include=code,description'})
         .then((res) => {
-            res.result.data.forEach((data) => {
-                expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)
+            res.result.data.forEach((result) => {
+                let dataToCompare = _.pick(data.attributes, ['code', 'description'])
+                expect(result.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+                expect(result.attributes).to.deep.equal(dataToCompare)
             })
         })
     })
