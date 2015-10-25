@@ -4,6 +4,7 @@ const _ = require('lodash')
 const Promise = require('bluebird')
 const Joi = require('joi')
 const Hapi = require('hapi')
+const uuid = require('node-uuid')
 
 let server, buildServer, destroyServer, hh;
 
@@ -16,6 +17,7 @@ const schema = {
 };
 
 const data = {
+    type: 'brands',
     attributes: {
         code: 'MF',
         description: 'Massey Furgeson'
@@ -63,7 +65,16 @@ describe('Rest operations when things go right', function() {
     })
     
     it('Will be able to POST to /brands', function() {
+        let payload = _.cloneDeep(data)
+        payload.id = uuid.v4()
         
+        return server.injectThen({method: 'post', url: '/brands', payload: {data}}).then((res) => {
+            expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+            expect(utils.getData(res)).to.deep.equal(data)
+        })
+    })
+    
+    it('Will be able to POST to /brands with uuid', function() {
         return server.injectThen({method: 'post', url: '/brands', payload: {data}}).then((res) => {
             expect(res.result.data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
             expect(utils.getData(res)).to.deep.equal(data)
@@ -72,6 +83,7 @@ describe('Rest operations when things go right', function() {
     
     it('Will be able to PATCH in /brands', function() {
         const payload = {
+            type: 'brands',
             attributes: {
                 code: 'VT',
                 description: 'Valtra'
@@ -112,6 +124,28 @@ describe('Rest operations when things go wrong', function() {
         
         let payload = _.cloneDeep(data);
         payload.foo = 'bar'
+        
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
+        })
+    })
+    
+    it('Won\'t be able to POST to /brands with a payload that doesn\'t have a type property', function() {
+        
+        let payload = _.cloneDeep(data);
+        delete payload.type
+        
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
+        })
+    })
+    
+    
+    it('Won\'t be able to POST to /brands with an invalid uuid', function() {
+        
+        let payload = _.cloneDeep(data);
+        // has to match this /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}
+        payload.id = '54ce70cd-9d0e-98e8-89c2-1423affcb0ca'
         
         return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
             expect(res.statusCode).to.equal(400)

@@ -14,6 +14,7 @@ const schema = {
 };
 
 const data = {
+    type: 'brands',
     attributes: {
         code: 'MF',
         description: 'Massey Furgeson'

@@ -18,6 +18,7 @@ const schema = {
 };
 
 const data = {
+    type: 'brands',
     attributes: {
         code: 'MF',
         year: 2007,
