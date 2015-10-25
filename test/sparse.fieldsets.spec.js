@@ -11,14 +11,16 @@ const schema = {
     type: 'brands',
     attributes: {
         code: Joi.string().min(2).max(10),
-        description: Joi.string()
+        description: Joi.string(),
+        year: Joi.number()
     }
 };
 
 const data = {
     attributes: {
         code: 'MF',
-        description: 'Massey Furgeson'
+        description: 'Massey Furgeson',
+        year: 2000
     }
 };
 
@@ -47,18 +49,20 @@ describe('Sparse Fieldsets', function() {
     
     it('Will be able to GET all from /brands with a sparse fieldset', function() {
         
-        return server.injectThen({method: 'get', url: '/brands?include=code&fields[description]=Massey Furgeson'})
+        return server.injectThen({method: 'get', url: '/brands?fields[brands]=description'})
         .then((res) => {
             res.result.data.forEach((data) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(data).to.deep.equal(data)  
+                expect(data.attributes.description).to.exist;
+                expect(data.attributes.code).to.not.exist;
+                expect(data.attributes.year).to.not.exist;
             })
         })
     })
     
     it('Will be able to GET all from /brands with multiple fieldset', function() {
         
-        return server.injectThen({method: 'get', url: '/brands?fields[code]=MS&fields[description]=Massey Furgeson'})
+        return server.injectThen({method: 'get', url: '/brands?fields[brands]=code,description'})
         .then((res) => {
             res.result.data.forEach((data) => {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
