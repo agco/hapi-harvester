@@ -24,8 +24,6 @@ const data = {
     }
 };
 
-
-//TODO just done the validation, actual sorts is remaining
 describe('Sorting', function() {
     
     beforeEach(function(done) {
@@ -53,6 +51,15 @@ describe('Sorting', function() {
         return server.injectThen({method: 'get', url: '/brands?sort=year'})
         .then((res) => {
             var sortedResults = _.sortBy(res.result.data, 'attributes.year')
+            expect(sortedResults).to.deep.equal(res.result.data)
+        })
+    })
+    
+    it('Will be able to GET all from /brands with a sort param and descending', function() {
+        return server.injectThen({method: 'get', url: '/brands?sort=-year'})
+        .then((res) => {
+            
+            var sortedResults = _.sortBy(res.result.data, 'attributes.year').reverse()
             expect(sortedResults).to.deep.equal(res.result.data)
         })
     })
