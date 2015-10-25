@@ -52,40 +52,6 @@ describe('Plugin Basics', function() {
             expect(res.headers.allow).to.equal('OPTIONS,GET,POST,PATCH,DELETE')
         })
     })
-    
-    it('should set the content-type header to application/json by default', function() {
-        server.route(hh.routes.get(schema))
-        return server.injectThen({method: 'GET', url: '/brands'})
-        .then((res) => {
-            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8')
-        })
-    })
-    
-    it('should reject all request with content-type not set to application/json', function() {
-        
-        const headers = {
-            'content-type' : 'text/html'
-        }
-        
-        server.route(hh.routes.post(schema))
-
-       return server.injectThen({method: 'post', url: '/brands', headers : headers}).then((res) => {
-            expect(res.statusCode).to.equal(415)
-        })
-    })
-    
-    it('should allow all request with content-type set to application/json', function() {
-        const headers = {
-            'content-type' : 'application/json'
-        }
-        
-        server.route(hh.routes.post(schema))
-        
-        server.injectThen({method: 'post', url: '/brands', headers: headers, payload: {data}})
-            .then((res) => {
-                expect(res.statusCode).to.equal(201)
-            })
-    })
 })
 
 buildServer = function(done) {

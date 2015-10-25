@@ -34,6 +34,36 @@ describe('Rest operations when things go right', function() {
         destroyServer(done)
     })
     
+    it('should set the content-type header to application/json by default', function() {
+        return server.injectThen({method: 'GET', url: '/brands'})
+        .then((res) => {
+            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8')
+        })
+    })
+    
+    it('should allow all request with content-type set to application/json', function() {
+        const headers = {
+            'content-type' : 'application/json'
+        }
+        
+        server.injectThen({method: 'post', url: '/brands', headers: headers, payload: {data}})
+            .then((res) => {
+                expect(res.statusCode).to.equal(201)
+            })
+    })
+    
+    it('should allow all request with content-type set to application/vnd.api+json', function() {
+        const headers = {
+            'content-type' : 'application/vnd.api+json'
+        }
+        
+        server.injectThen({method: 'post', url: '/brands', headers: headers, payload: {data}})
+            
+            .then((res) => {
+                expect(res.statusCode).to.equal(201)
+            })
+    })
+    
     it('Will be able to GET by id from /brands', function() {
         return server.injectThen({method: 'post', url: '/brands', payload: {data}})
         .then((res) => {
@@ -120,6 +150,17 @@ describe('Rest operations when things go wrong', function() {
         destroyServer(done)
     })
     
+    it('should reject all request with content-type not set to application/json or application/vnd.api+json', function() {
+        
+        const headers = {
+            'content-type' : 'text/html'
+        }
+
+       return server.injectThen({method: 'post', url: '/brands', headers : headers}).then((res) => {
+            expect(res.statusCode).to.equal(415)
+        })
+    })
+    
     it('Won\'t be able to POST to /brands with a payload that doesn\'t match the schema', function() {
         
         let payload = _.cloneDeep(data);
@@ -139,7 +180,6 @@ describe('Rest operations when things go wrong', function() {
             expect(res.statusCode).to.equal(400)
         })
     })
-    
     
     it('Won\'t be able to POST to /brands with an invalid uuid', function() {
         
