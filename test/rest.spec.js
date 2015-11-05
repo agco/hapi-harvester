@@ -9,10 +9,12 @@ const uuid = require('node-uuid')
 let server, buildServer, destroyServer, hh;
 
 const schema = {
-    type: 'brands',
-    attributes: {
-        code: Joi.string().min(2).max(10),
-        description: Joi.string()
+    brands: {
+        type: 'brands',
+        attributes: {
+            code: Joi.string().min(2).max(10),
+            description: Joi.string()
+        }
     }
 };
 
@@ -239,7 +241,7 @@ buildServer = function(done) {
 }
 
 destroyServer = function(done) {
-    utils.removeFromDB(server, 'brands')
+    utils.removeFromDB(server, ['brands'])
     .then((res) => {
         server.stop(done)  
     })

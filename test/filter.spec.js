@@ -8,12 +8,14 @@ const Hapi = require('hapi')
 let server, buildServer, destroyServer, hh;
 
 const schema = {
-    type: 'brands',
-    attributes: {
-        code: Joi.string().min(2).max(10),
-        year: Joi.number(),
-        series: Joi.number(),
-        description: Joi.string()
+    brands: {
+        type: 'brands',
+        attributes: {
+            code: Joi.string().min(2).max(10),
+            year: Joi.number(),
+            series: Joi.number(),
+            description: Joi.string()
+        }
     }
 };
 
@@ -214,7 +216,7 @@ buildServer = function(done) {
 }
 
 destroyServer = function(done) {
-    utils.removeFromDB(server, 'brands')
+    utils.removeFromDB(server, ['brands'])
     .then((res) => {
         server.stop(done)  
     })
