@@ -35,7 +35,7 @@ const data = [
             appearances: 2007
         },
         relationships: {
-            pets: [{type: 'people', id: 'abc'}],
+            pets: [{type: 'pets', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}, {type: 'pets', id: 'a344d722-b7f9-49dd-9842-f0a375f7dfdc'}],
             soulmate: {type: 'people', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}
         }
     },
@@ -44,12 +44,36 @@ const data = [
         id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc',
         attributes: {
             name: 'Paul'
+        },
+        relationships: {
+            pets: [{type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}],
+        }
+    },
+    {
+        type: 'pets',
+        id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc',
+        attributes: {
+            name: 'Dogbert'
+        }
+    },
+    {
+        type: 'pets',
+        id: 'a344d722-b7f9-49dd-9842-f0a375f7dfdc',
+        attributes: {
+            name: 'Catbert'
+        }
+    },
+    {
+        type: 'pets',
+        id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc',
+        attributes: {
+            name: 'Horsepol'
         }
     }
 ];
 
 
-describe.only('Inclusion', function () {
+describe('Inclusion', function () {
 
     beforeEach(function(done) {
         buildServer(() => {
@@ -78,21 +102,28 @@ describe.only('Inclusion', function () {
     })
 
     describe('many to many', function () {
-        it.only('should include referenced lovers when querying people', function () {
+        it('should include referenced lovers when querying people', function () {
             return server.injectThen({method: 'get', url: '/people?include=pets'}).then(function (res) {
                 expect(res.statusCode).to.equal(200);
                 var body = res.result;
                 expect(body.data).to.have.length(2);
                 expect(body).to.have.property('included');
                 expect(body.included).to.be.an.Array;
-                expect(body.included).to.have.length(1);
-                expect(body.included[0]).to.have.property('id', 'c344d722-b7f9-49dd-9842-f0a375f7dfdc');
+                expect(body.included).to.have.length(3);
+                var expectedIncludedPets = ['c344d722-b7f9-49dd-9842-f0a375f7dfdc',
+                                            'a344d722-b7f9-49dd-9842-f0a375f7dfdc',
+                                            'b344d722-b7f9-49dd-9842-f0a375f7dfdc'];
+                _.forEach(body.included, function (item) {
+                    expect(item).to.have.property('type', 'pets');
+                    expect(expectedIncludedPets).to.contain(item.id);
+                });
+
             });
         });
     });
 
     describe('one to one', function () {
-        it.skip('should include soulmate when querying people', function () {
+        it('should include soulmate when querying people', function () {
             return server.injectThen({method: 'get', url: '/people?include=soulmate'}).then(function (res) {
                 expect(res.statusCode).to.equal(200);
                 var body = res.result;
@@ -101,25 +132,25 @@ describe.only('Inclusion', function () {
                 expect(body.included).to.be.an.Array;
                 expect(body.included).to.have.length(1);
                 expect(body.included[0]).to.have.property('id', 'c344d722-b7f9-49dd-9842-f0a375f7dfdc');
+                expect(body.included[0]).to.have.property('type', 'people');
             });
         });
     });
-    //Todo: add test for "," support.
 
-    describe("repeated entities", function () {
-        it.skip('should deduplicate included soulmate & lovers when querying people', function (done) {
-            request(config.baseUrl).get('/people?include=soulmate,lovers').expect(200).end(function (err, res) {
-                should.not.exist(err);
-                var body = JSON.parse(res.text);
-                (body.linked).should.be.an.Object;
-                (body.linked.people).should.be.an.Array;
-                var log = {};
-                _.each(body.linked.people, function (person) {
-                    should.not.exist(log[person.id]);
-                    log[person.id] = person;
-                });
-                done();
-            });
+    describe('repeated entities', function () {
+        it.skip('should deduplicate included soulmate & lovers when querying people', function () {
+            //request(config.baseUrl).get('/people?include=soulmate,lovers').expect(200).end(function (err, res) {
+            //    should.not.exist(err);
+            //    var body = JSON.parse(res.text);
+            //    (body.linked).should.be.an.Object;
+            //    (body.linked.people).should.be.an.Array;
+            //    var log = {};
+            //    _.each(body.linked.people, function (person) {
+            //        should.not.exist(log[person.id]);
+            //        log[person.id] = person;
+            //    });
+            //    done();
+            //});
         });
     });
 
@@ -145,23 +176,12 @@ describe.only('Inclusion', function () {
     });
 
     describe('empty inclusion array', function () {
-        it.skip('should NOT throw error', function () {
-            var includes = require('../lib/includes.js')(this.harvesterApp, this.harvesterApp._schema);
-            includes.linked({people: []}, []);
+        it('should NOT throw error', function () {
+            var includes = require('../lib/includes.js')(hh.adapter, hh.schemas);
+            includes.linked({data: []}, 'people', []);
         });
     });
 
-    //it('Will be able to GET all from /brands with a inclusion', function() {
-    //    return server.injectThen({method: 'get', url: '/brands?include=code'})
-    //    .then((res) => {
-    //        res.result.data.forEach((result) => {
-    //            let dataToCompare = _.pick(data.attributes, 'code')
-    //            expect(result.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-    //            expect(result.attributes).to.deep.equal(dataToCompare)
-    //        })
-    //    })
-    //})
-    //
     //it('Will be able to GET all from /brands with multiple inclusions', function() {
     //    return server.injectThen({method: 'get', url: '/brands?include=code,description'})
     //    .then((res) => {
@@ -191,7 +211,7 @@ buildServer = function(done) {
 }
 
 destroyServer = function(done) {
-    utils.removeFromDB(server, ['people'])
+    utils.removeFromDB(server, ['people', 'pets'])
     .then((res) => {
         server.stop(done)
     })
