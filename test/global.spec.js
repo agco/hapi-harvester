@@ -17,11 +17,14 @@ global.utils = {
         const data = res.result.data;
         return _.omit(data, 'id')
     },
-    removeFromDB: (server, collection) => {
-        const model =  server.plugins.harvester.adapter.models['brands']
-        return model.remove({}).lean().exec()  
+    removeFromDB: (server, collections) => {
+        var promises = _.map(collections, function (item) {
+            const model = server.plugins.harvester.adapter.models[item];
+            return model.remove({}).lean().exec();
+        });
+        return Promise.all(promises);
     },
-    buildServer: (schema) => {
+    buildServer: (schemas) => {
         let server, hh;
         const Hapi = require('hapi')
         const plugin = require('../')
@@ -35,11 +38,13 @@ global.utils = {
             ], () => {
                 hh = server.plugins.harvester;
                 server.start(() => {
-                    ['get', 'getById', 'post', 'patch', 'delete'].forEach(function(verb) {
-                        server.route(hh.routes[verb](schema))
-                    })
+                    _.forEach(schemas, function (schema) {
+                        ['get', 'getById', 'post', 'patch', 'delete'].forEach(function (verb) {
+                            server.route(hh.routes[verb](schema))
+                        })
+                    });
                     resolve({server, hh})
-                })  
+                })
             })
         })
     }
