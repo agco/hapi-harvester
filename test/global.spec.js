@@ -25,13 +25,14 @@ global.utils = {
         });
         return Promise.all(promises);
     },
-    buildServer: (schemas) => {
+    buildServer: (schemas, options) => {
+        options = options || {};
         let server, hh;
         const Hapi = require('hapi')
         const plugin = require('../')
         const adapter = plugin.getAdapter('mongodb')
         server = new Hapi.Server()
-        server.connection({port : 9100})
+        server.connection({port : options.port || 9100})
         return new Promise((resolve) => {
             server.register([
                 {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
