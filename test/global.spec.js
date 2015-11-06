@@ -3,6 +3,7 @@
 const chai = require('chai')
 const _ = require('lodash')
 const Promise = require('bluebird')
+Promise.longStackTraces();
 
 chai.use(require('chai-things'))
 
