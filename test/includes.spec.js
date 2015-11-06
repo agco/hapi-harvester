@@ -158,6 +158,18 @@ describe('Inclusion', function () {
                 expect(body.included[0]).to.have.property('type', 'people');
             });
         });
+        it('should include soulmate when getting resource by id', function () {
+            return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc?include=soulmate'}).then(function (res) {
+                expect(res.statusCode).to.equal(200);
+                var body = res.result;
+                expect(body.data).to.be.an.Object;
+                expect(body).to.have.property('included');
+                expect(body.included).to.be.an.Array;
+                expect(body.included).to.have.length(1);
+                expect(body.included[0]).to.have.property('id', 'c344d722-b7f9-49dd-9842-f0a375f7dfdc');
+                expect(body.included[0]).to.have.property('type', 'people');
+            });
+        });
     });
 
     describe('compound documents', function () {
