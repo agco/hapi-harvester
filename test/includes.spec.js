@@ -33,6 +33,10 @@ const schema = {
         relationships: {
             collarOwner: {type: 'pets'}
         }
+    },
+    ents: {
+        type: 'ents',
+        attributes: {}
     }
 };
 
@@ -176,6 +180,14 @@ describe('Inclusion', function () {
                         throw new Error('Unexpected included item: ' + JSON.stringify(item, null, 2));
                     });
                 });
+        });
+        describe('when relationship not defined on schema', function () {
+            it('should respond with 500', function () {
+                return server.injectThen({method: 'get', url: '/ents?include=owner'})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(500);
+                    });
+            });
         });
     });
 
