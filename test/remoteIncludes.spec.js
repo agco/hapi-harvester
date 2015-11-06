@@ -3,6 +3,7 @@
 var Joi = require('joi');
 var _ = require('lodash');
 var Promise = require('bluebird');
+const utils = require('./utils');
 
 
 describe('remote link', function () {

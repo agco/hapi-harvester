@@ -1,11 +1,8 @@
 'use strict'
 
-const _ = require('lodash')
-const Promise = require('bluebird')
 const Joi = require('joi')
-const Hapi = require('hapi')
-
-let server, buildServer, destroyServer, hh;
+const utils = require('./utils');
+const seeder = require('./seeder');
 
 const schema = {
     brands: {
@@ -19,36 +16,26 @@ const schema = {
 };
 
 const data = {
-    type: 'brands',
-    attributes: {
-        code: 'MF',
-        description: 'Massey Furgeson',
-        year: 2000
-    }
+    brands: [{
+        type: 'brands',
+        attributes: {
+            code: 'MF',
+            description: 'Massey Furgeson',
+            year: 2000
+        }
+    }]
 };
 
 
 //TODO just done the validation, actual includes is remaining
 describe('Sparse Fieldsets', function() {
-    
-    beforeEach(function(done) {
-        buildServer(() => {
-            let promises = [];
-        
-            _.times(10, () => {
-                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data}}))
-            })
-            
-            return Promise.all(promises)
-            .then(() => {
-                done()
-            })
-        })
-    })
-    
-    afterEach(function(done) {
-        destroyServer(done)
-    })
+    before(function () {
+           return utils.buildDefaultServer(schema).then(function (server) {
+               return seeder(server).dropCollectionsAndSeed(data);
+           });
+       });
+
+       after(utils.createDefaultServerDestructor());
     
     it('Will be able to GET all from /brands with a sparse fieldset', function() {
         
@@ -82,19 +69,3 @@ describe('Sparse Fieldsets', function() {
         })
     })
 })
-
-buildServer = function(done) {
-    return utils.buildServer(schema)
-        .then((res) => {
-            server = res.server;
-            hh = res.hh;
-            done()
-        })
-}
-
-destroyServer = function(done) {
-    utils.removeFromDB(server, ['brands'])
-    .then((res) => {
-        server.stop(done)  
-    })
-}

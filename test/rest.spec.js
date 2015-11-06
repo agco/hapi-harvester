@@ -3,10 +3,9 @@
 const _ = require('lodash')
 const Promise = require('bluebird')
 const Joi = require('joi')
-const Hapi = require('hapi')
+const utils = require('./utils');
 const uuid = require('node-uuid')
-
-let server, buildServer, destroyServer, hh;
+const seeder = require('./seeder');
 
 const schema = {
     brands: {
@@ -27,14 +26,14 @@ const data = {
 };
 
 describe('Rest operations when things go right', function() {
-    
-    beforeEach(function(done) {
-        buildServer(done)
-    })
-    
-    afterEach(function(done) {
-        destroyServer(done)
-    })
+
+    before(function () {
+        return utils.buildDefaultServer(schema).then(function (server) {
+            return seeder(server).dropCollections('brands');
+        });
+    });
+
+    after(utils.createDefaultServerDestructor());
     
     it('should set the content-type header to application/json by default', function() {
         return server.injectThen({method: 'GET', url: '/brands'})
@@ -143,14 +142,12 @@ describe('Rest operations when things go right', function() {
 })
 
 describe('Rest operations when things go wrong', function() {
-    
-    beforeEach(function(done) {
-        buildServer(done)
-    })
-    
-    afterEach(function(done) {
-        destroyServer(done)
-    })
+
+    before(function () {
+        return utils.buildDefaultServer(schema);
+    });
+
+    after(utils.createDefaultServerDestructor());
     
     it('should reject all request with content-type not set to application/json or application/vnd.api+json', function() {
         
@@ -230,19 +227,3 @@ describe('Rest operations when things go wrong', function() {
         })
     })
 })
-
-buildServer = function(done) {
-    return utils.buildServer(schema)
-        .then((res) => {
-            server = res.server;
-            hh = res.hh;
-            done()
-        })
-}
-
-destroyServer = function(done) {
-    utils.removeFromDB(server, ['brands'])
-    .then((res) => {
-        server.stop(done)  
-    })
-}

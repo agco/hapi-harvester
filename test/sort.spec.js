@@ -3,9 +3,8 @@
 const _ = require('lodash')
 const Promise = require('bluebird')
 const Joi = require('joi')
-const Hapi = require('hapi')
-
-let server, buildServer, destroyServer, hh;
+const utils = require('./utils');
+const seeder = require('./seeder');
 
 const schema = {
     brands: {
@@ -28,27 +27,21 @@ const data = {
 };
 
 describe('Sorting', function() {
-    
-    beforeEach(function(done) {
-        buildServer(() => {
-            let promises = [];
-        
+
+    before(function () {
+        return utils.buildDefaultServer(schema).then(function (server) {
+            var brands = [];
             _.times(10, (index) => {
-                let payload = Object.assign({}, data)
+                let payload = _.cloneDeep(data);
                 payload.attributes.year = 2000 + index;
-                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}))
-            })
-            
-            return Promise.all(promises)
-            .then(() => {
-                done()
-            })
-        })
-    })
-    
-    afterEach(function(done) {
-        destroyServer(done)
-    })
+                brands.push(payload);
+            });
+            return seeder(server).dropCollectionsAndSeed({brands: brands});
+        });
+    });
+
+    after(utils.createDefaultServerDestructor());
+
     
     it('Will be able to GET all from /brands with a sort param', function() {
         return server.injectThen({method: 'get', url: '/brands?sort=year'})
@@ -74,19 +67,3 @@ describe('Sorting', function() {
         })
     })
 })
-
-buildServer = function(done) {
-    return utils.buildServer(schema)
-        .then((res) => {
-            server = res.server;
-            hh = res.hh;
-            done()
-        })
-}
-
-destroyServer = function(done) {
-    utils.removeFromDB(server, ['brands'])
-    .then((res) => {
-        server.stop(done)  
-    })
-}
