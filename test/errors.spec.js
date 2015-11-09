@@ -4,7 +4,7 @@ const Hapi = require('hapi')
 const Joi = require('joi')
 const should = require('should')
 
-let server, buildServer, destroyServer, hh;
+let server, buildServer, destroyServer, hh
 
 const schema = {
     type: 'brands',
@@ -59,8 +59,8 @@ describe('Global Error Handling', function () {
 buildServer = function(done) {
     return utils.buildServer(schema)
         .then((res) => {
-            server = res.server;
-            hh = res.hh;
+            server = res.server
+            hh = res.hh
             done()
         })
 }
