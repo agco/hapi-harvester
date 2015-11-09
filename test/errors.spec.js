@@ -32,6 +32,11 @@ describe('Global Error Handling', function () {
 			done();
 		})
 	})
+
+    afterEach(function (done) {
+        destroyServer(done)
+    })
+
 	describe('Given a request for an invalid resource', function () {
 		it('should return a JSON+API compliant error', function () {
 			return server.injectThen({ method: 'get', url: '/some/bogus/request'})
