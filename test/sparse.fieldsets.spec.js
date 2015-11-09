@@ -29,10 +29,13 @@ const data = {
 
 //TODO just done the validation, actual includes is remaining
 describe('Sparse Fieldsets', function() {
+    let seededIds;
     before(function () {
-           return utils.buildDefaultServer(schema).then(function (server) {
+        return utils.buildDefaultServer(schema).then(function (server) {
                return seeder(server).dropCollectionsAndSeed(data);
-           });
+        }).then(function (ids) {
+            seededIds = ids;
+        });
        });
 
        after(utils.createDefaultServerDestructor());
@@ -49,6 +52,60 @@ describe('Sparse Fieldsets', function() {
             })
         })
     })
+
+    describe('when including remote entity', function () {
+        let server2;
+
+        const schema2 = {
+            equipment: {
+                type: 'equipment',
+                attributes: {},
+                relationships: {
+                    brand: {type: 'brands', baseUri: 'http://localhost:' + 9100}
+                }
+            }
+        };
+
+        before(function () {
+            return utils.buildServer(schema2, {port: 8012}).then(function (result) {
+                server2 = result.server;
+                let data = {
+                    equipment: [{
+                        type: 'equipment',
+                        attributes: {},
+                        relationships: {
+                            brand: {type: 'brands', id: seededIds.brands[0]}
+                        }
+                    }]
+                };
+                return seeder(server2).dropCollectionsAndSeed(data);
+            });
+        });
+
+        after(function () {
+            return new Promise(function (resolve, reject) {
+                server2.stop(function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(err);
+                    }
+                })
+            });
+        });
+
+        it('Will be able to GET all from /eqipment and included remote resource with a sparse fieldset', function () {
+
+            return server2.injectThen({method: 'get', url: '/equipment?include=brand&fields[brands]=code'})
+                .then((res) => {
+                    expect(res.result.data).to.have.length(1);
+                    expect(res.result.included).to.have.length(1);
+                    expect(res.result.included[0].attributes.code).to.equal('MF');
+                    expect(res.result.included[0].attributes.description).to.not.exist;
+                    expect(res.result.included[0].attributes.year).to.not.exist;
+                })
+        })
+    });
     
     it('Will be able to GET all from /brands with multiple fieldset', function() {
         
@@ -58,14 +115,6 @@ describe('Sparse Fieldsets', function() {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
                 expect(data).to.deep.equal(data)
             })
-        })
-    })
-    
-    it('Won\'t be able to GET all from /brands with multiple fieldset where one is not available in attributes', function() {
-        
-        return server.injectThen({method: 'get', url: '/brands?fields[foo]=bar&fields[description]=Massey Furgeson'})
-        .then((res) => {
-            expect(res.statusCode).to.equal(400)  
         })
     })
 })
