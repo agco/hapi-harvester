@@ -1,7 +1,7 @@
 'use strict'
 
 const Joi = require('joi')
-const Promise = require('bluebird')
+const utils = require('./utils');
 
 let server, buildServer, destroyServer, hh;
 
@@ -10,14 +10,6 @@ const schema = {
     attributes: {
         code: Joi.string().min(2).max(10),
         description: Joi.string()
-    }
-};
-
-const data = {
-    type: 'brands',
-    attributes: {
-        code: 'MF',
-        description: 'Massey Furgeson'
     }
 };
 

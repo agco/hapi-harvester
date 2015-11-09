@@ -1,95 +1,199 @@
-'use strict'
+'use strict';
 
-const _ = require('lodash')
-const Promise = require('bluebird')
-const Joi = require('joi')
-const Hapi = require('hapi')
-
-let server, buildServer, destroyServer, hh;
+const _ = require('lodash');
+const seeder = require('./seeder');
+const Joi = require('joi');
+const utils = require('./utils');
 
 const schema = {
-    type: 'brands',
-    attributes: {
-        code: Joi.string().min(2).max(10),
-        description: Joi.string(),
-        year: Joi.number()
+    people: {
+        type: 'people',
+        attributes: {
+            name: Joi.string(),
+            appearances: Joi.number()
+        },
+        relationships: {
+            pets: [{type: 'pets'}],
+            soulmate: {type: 'people'}
+        }
+    },
+    pets: {
+        type: 'pets',
+        attributes: {
+            name: Joi.string()
+        },
+        relationships: {
+            owner: {type: 'people'}
+        }
+    },
+    collars: {
+        type: 'collars',
+        attributes: {},
+        relationships: {
+            collarOwner: {type: 'pets'}
+        }
+    },
+    ents: {
+        type: 'ents',
+        attributes: {}
     }
 };
 
 const data = {
-    type: 'brands',
-    attributes: {
-        code: 'MF',
-        description: 'Massey Furgeson',
-        year: 2007
-    }
+    people: [
+        {
+            type: 'people',
+            id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc',
+            attributes: {
+                name: 'Jack',
+                appearances: 2007
+            },
+            relationships: {
+                pets: [{type: 'pets', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}, {type: 'pets', id: 'a344d722-b7f9-49dd-9842-f0a375f7dfdc'}],
+                soulmate: {type: 'people', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+            }
+        },
+        {
+            type: 'people',
+            id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc',
+            attributes: {
+                name: 'Paul'
+            },
+            relationships: {
+                pets: [{type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}]
+            }
+        }
+    ],
+    pets: [
+        {
+            type: 'pets',
+            id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc',
+            attributes: {
+                name: 'Dogbert'
+            }
+        },
+        {
+            type: 'pets',
+            id: 'a344d722-b7f9-49dd-9842-f0a375f7dfdc',
+            attributes: {
+                name: 'Catbert'
+            }
+        },
+        {
+            type: 'pets',
+            id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc',
+            attributes: {
+                name: 'Horsepol'
+            },
+            relationships: {
+                owner: {type: 'people', id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc'}
+            }
+        }
+    ],
+    collars: [
+        {
+            type: 'collars',
+            relationships: {
+                collarOwner: {type: 'collars', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+            }
+        }
+    ]
 };
 
 
-//TODO just done the validation, actual includes is remaining
-describe.skip('Inclusion', function() {
-    
-    beforeEach(function(done) {
-        buildServer(() => {
-            let promises = [];
-        
-            _.times(10, () => {
-                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data}}))
-            })
-            
-            return Promise.all(promises)
-            .then(() => {
-                done()
-            })
-        })
-    })
-    
-    afterEach(function(done) {
-        destroyServer(done)
-    })
-    
-    it('Will be able to GET all from /brands with a inclusion', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code'})
-        .then((res) => {
-            res.result.data.forEach((result) => {
-                let dataToCompare = _.pick(data.attributes, 'code')
-                expect(result.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(result.attributes).to.deep.equal(dataToCompare)
-            })
-        })
-    })
-    
-    it('Will be able to GET all from /brands with multiple inclusions', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code,description'})
-        .then((res) => {
-            res.result.data.forEach((result) => {
-                let dataToCompare = _.pick(data.attributes, ['code', 'description'])
-                expect(result.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-                expect(result.attributes).to.deep.equal(dataToCompare)
-            })
-        })
-    })
-    
-    it('Won\'t be able to GET all from /brands with an inclusion not available in attributes', function() {
-        return server.injectThen({method: 'get', url: '/brands?include=code,foo'})
-        .then((res) => {
-            expect(res.statusCode).to.equal(400)
-        })
-    })
-})
+describe('Inclusion', function () {
 
-buildServer = function(done) {
-    return utils.buildServer(schema)
-        .then((res) => {
-            server = res.server;
-            hh = res.hh;
-            done()
+    before(function () {
+        return utils.buildDefaultServer(schema).then((server) => {
+            return seeder(server).dropCollectionsAndSeed(data);
         })
-}
+    });
 
-destroyServer = function(done) {
-    utils.removeFromDB(server, 'brands')
-    .then((res) => {
-        server.stop(done)  
-    })
-}
+    after(utils.createDefaultServerDestructor());
+
+    describe('many to many', function () {
+        it('should include referenced pets when querying people', function () {
+            return server.injectThen({method: 'get', url: '/people?include=pets'}).then(function (res) {
+                expect(res.statusCode).to.equal(200);
+                const body = res.result;
+                expect(body.data).to.have.length(2);
+                expect(body).to.have.property('included');
+                expect(body.included).to.be.an.Array;
+                expect(body.included).to.have.length(3);
+                const expectedIncludedPets = ['c344d722-b7f9-49dd-9842-f0a375f7dfdc',
+                                            'a344d722-b7f9-49dd-9842-f0a375f7dfdc',
+                                            'b344d722-b7f9-49dd-9842-f0a375f7dfdc'];
+                _.forEach(body.included, function (item) {
+                    expect(item).to.have.property('type', 'pets');
+                    expect(expectedIncludedPets).to.contain(item.id);
+                });
+
+            });
+        });
+    });
+
+    describe('one to one', function () {
+        it('should include soulmate when querying people', function () {
+            return server.injectThen({method: 'get', url: '/people?include=soulmate'}).then(function (res) {
+                expect(res.statusCode).to.equal(200);
+                const body = res.result;
+                expect(body.data).to.have.length(2);
+                expect(body).to.have.property('included');
+                expect(body.included).to.be.an.Array;
+                expect(body.included).to.have.length(1);
+                expect(body.included[0]).to.have.property('id', 'c344d722-b7f9-49dd-9842-f0a375f7dfdc');
+                expect(body.included[0]).to.have.property('type', 'people');
+            });
+        });
+        it('should include soulmate when getting resource by id', function () {
+            return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc?include=soulmate'}).then(function (res) {
+                expect(res.statusCode).to.equal(200);
+                const body = res.result;
+                expect(body.data).to.be.an.Object;
+                expect(body).to.have.property('included');
+                expect(body.included).to.be.an.Array;
+                expect(body.included).to.have.length(1);
+                expect(body.included[0]).to.have.property('id', 'c344d722-b7f9-49dd-9842-f0a375f7dfdc');
+                expect(body.included[0]).to.have.property('type', 'people');
+            });
+        });
+    });
+
+    describe('compound documents', function () {
+        it('should include pet and person when querying collars', function () {
+            return server.injectThen({method: 'get', url: '/collars?include=collarOwner.owner.soulmate,collarOwner,collarOwner.owner'})
+                .then(function (res) {
+                    const body = res.result;
+                    expect(body.included).to.be.an.Array;
+                    expect(body.included).to.have.length(3);
+                    _.forEach(body.included, function (item) {
+                        if (item.type === 'pets' && item.id === 'b344d722-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        if (item.type === 'people' && item.id === 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        if (item.type === 'people' && item.id === 'c344d722-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        throw new Error('Unexpected included item: ' + JSON.stringify(item, null, 2));
+                    });
+                });
+        });
+        describe('when relationship not defined on schema', function () {
+            it('should respond with 500', function () {
+                return server.injectThen({method: 'get', url: '/ents?include=owner'})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(500);
+                    });
+            });
+        });
+    });
+
+    describe('empty inclusion array', function () {
+        it('should NOT throw error', function () {
+            const includes = require('../lib/includes.js')(hh.adapter, hh.schemas);
+            includes.appendLinkedResources({data: []}, 'people', []);
+        });
+    });
+});
