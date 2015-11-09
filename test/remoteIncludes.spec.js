@@ -1,27 +1,27 @@
 'use strict';
 
-var Joi = require('joi');
-var _ = require('lodash');
-var Promise = require('bluebird');
+const Joi = require('joi');
+const _ = require('lodash');
+const Promise = require('bluebird');
 const utils = require('./utils');
 
 
 describe('remote link', function () {
 
-    var server1, server2;
+    let server1, server2;
 
     describe('given 2 resources : \'posts\', \'people\' ; defined on distinct harvesterjs servers ' +
         'and posts has a remote link \'author\' defined to people', function () {
 
-        var app1Port = 8011;
-        var app2Port = 8012;
+        const app1Port = 8011;
+        const app2Port = 8012;
 
         before(function () {
 
-            var that = this;
+            const that = this;
             that.timeout(100000);
 
-            var schema1 = {
+            const schema1 = {
                 posts: {
                     type: 'posts',
                     attributes: {},
@@ -45,12 +45,12 @@ describe('remote link', function () {
                 }
             };
 
-            var server1Promise = utils.buildServer(schema1, {port: app1Port})
+            const server1Promise = utils.buildServer(schema1, {port: app1Port})
                 .then((res) => {
                     server1 = res.server;
                 });
 
-            var schema2 = {
+            const schema2 = {
                 people: {
                     type: 'people',
                     attributes: {
@@ -68,7 +68,7 @@ describe('remote link', function () {
                     }
                 }
             };
-            var server2Promise = utils.buildServer(schema2, {port: app2Port})
+            const server2Promise = utils.buildServer(schema2, {port: app2Port})
                 .then((res) => {
                     server2 = res.server;
                 });
@@ -79,12 +79,12 @@ describe('remote link', function () {
                 .then(function () {
                     return utils.removeFromDB(server1, ['posts', 'comments', 'topics']);
                 }).then(function () {
-                    var data = {type: 'countries', attributes: {code: 'US'}};
+                    const data = {type: 'countries', attributes: {code: 'US'}};
                     return server2.injectThen({method: 'post', url: '/countries', payload: {data: data}});
                 }).then(function (response) {
                     expect(response.statusCode).to.equal(201);
                     that.countryId = response.result.data.id;
-                    var data = {
+                    const data = {
                         type: 'people',
                         attributes: {firstName: 'Tony', lastName: 'Maley'},
                         relationships: {country: {type: 'countries', id: that.countryId}}
@@ -93,7 +93,7 @@ describe('remote link', function () {
                 }).then(function (response) {
                     expect(response.statusCode).to.equal(201);
                     that.authorId = response.result.data.id;
-                    var data = {
+                    const data = {
                         type: 'comments',
                         attributes: {body: 'Nodejs Rules 1'}
                     };
@@ -101,7 +101,7 @@ describe('remote link', function () {
                 }).then(function (response) {
                     expect(response.statusCode).to.equal(201);
                     that.commentId = response.result.data.id;
-                    var data = {
+                    const data = {
                         type: 'posts',
                         attributes: {},
                         relationships: {author: {type: 'people', id: that.authorId}, comments: [{type: 'comments', id: that.commentId}]}
@@ -113,12 +113,12 @@ describe('remote link', function () {
         });
 
         after(function () {
-            var promise1 = new Promise(function (resolve) {
+            const promise1 = new Promise(function (resolve) {
                 utils.removeFromDB(server1, ['posts', 'comments', 'topics']).then(function () {
                     server1.stop(resolve);
                 });
             });
-            var promise2 = new Promise(function (resolve) {
+            const promise2 = new Promise(function (resolve) {
                 utils.removeFromDB(server2, ['people', 'countries']).then(function () {
                     server2.stop(resolve);
                 });
@@ -128,11 +128,11 @@ describe('remote link', function () {
 
         describe('fetch posts and include author', function () {
             it('should respond with a compound document with people included', function () {
-                var that = this;
+                const that = this;
                 return server1.injectThen({method: 'get', url: '/posts?include=author'})
                     .then(function (response) {
                         expect(response.statusCode).to.equal(200);
-                        var body = response.result;
+                        const body = response.result;
                         expect(_.pluck(body.included, 'id')).to.eql([that.authorId]);
                     });
             });
@@ -140,11 +140,11 @@ describe('remote link', function () {
 
         describe('fetch posts include author.country', function () {
             it('should respond with a compound document with people and countries included', function () {
-                var that = this;
+                const that = this;
                 return server1.injectThen({method: 'get', url: '/posts?include=author.country'})
                     .then(function (response) {
                         expect(response.statusCode).to.equal(200);
-                        var body = response.result;
+                        const body = response.result;
                         expect(_.pluck(body.included, 'id').sort()).to.eql([that.authorId, that.countryId].sort());
                     });
             });
@@ -152,11 +152,11 @@ describe('remote link', function () {
 
         describe('fetch posts include topic, author, author.country and comments', function () {
             it('should respond with a compound document with people, countries and comments included', function () {
-                var that = this;
+                const that = this;
                 return server1.injectThen({method: 'get', url: '/posts?include=topic,comments,author,author.country'})
                     .then(function (response) {
                         expect(response.statusCode).to.equal(200);
-                        var body = response.result;
+                        const body = response.result;
                         expect(_.pluck(body.included, 'id').sort()).to.eql([that.countryId, that.authorId, that.commentId].sort());
                     });
             });

@@ -115,12 +115,12 @@ describe('Inclusion', function () {
         it('should include referenced pets when querying people', function () {
             return server.injectThen({method: 'get', url: '/people?include=pets'}).then(function (res) {
                 expect(res.statusCode).to.equal(200);
-                var body = res.result;
+                const body = res.result;
                 expect(body.data).to.have.length(2);
                 expect(body).to.have.property('included');
                 expect(body.included).to.be.an.Array;
                 expect(body.included).to.have.length(3);
-                var expectedIncludedPets = ['c344d722-b7f9-49dd-9842-f0a375f7dfdc',
+                const expectedIncludedPets = ['c344d722-b7f9-49dd-9842-f0a375f7dfdc',
                                             'a344d722-b7f9-49dd-9842-f0a375f7dfdc',
                                             'b344d722-b7f9-49dd-9842-f0a375f7dfdc'];
                 _.forEach(body.included, function (item) {
@@ -136,7 +136,7 @@ describe('Inclusion', function () {
         it('should include soulmate when querying people', function () {
             return server.injectThen({method: 'get', url: '/people?include=soulmate'}).then(function (res) {
                 expect(res.statusCode).to.equal(200);
-                var body = res.result;
+                const body = res.result;
                 expect(body.data).to.have.length(2);
                 expect(body).to.have.property('included');
                 expect(body.included).to.be.an.Array;
@@ -148,7 +148,7 @@ describe('Inclusion', function () {
         it('should include soulmate when getting resource by id', function () {
             return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc?include=soulmate'}).then(function (res) {
                 expect(res.statusCode).to.equal(200);
-                var body = res.result;
+                const body = res.result;
                 expect(body.data).to.be.an.Object;
                 expect(body).to.have.property('included');
                 expect(body.included).to.be.an.Array;
@@ -163,7 +163,7 @@ describe('Inclusion', function () {
         it('should include pet and person when querying collars', function () {
             return server.injectThen({method: 'get', url: '/collars?include=collarOwner.owner.soulmate,collarOwner,collarOwner.owner'})
                 .then(function (res) {
-                    var body = res.result;
+                    const body = res.result;
                     expect(body.included).to.be.an.Array;
                     expect(body.included).to.have.length(3);
                     _.forEach(body.included, function (item) {
@@ -192,7 +192,7 @@ describe('Inclusion', function () {
 
     describe('empty inclusion array', function () {
         it('should NOT throw error', function () {
-            var includes = require('../lib/includes.js')(hh.adapter, hh.schemas);
+            const includes = require('../lib/includes.js')(hh.adapter, hh.schemas);
             includes.appendLinkedResources({data: []}, 'people', []);
         });
     });
