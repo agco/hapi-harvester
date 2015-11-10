@@ -7,27 +7,19 @@ const seeder = require('./seeder')
 const utils = require('./utils')
 
 const schema = {
-    type: 'globalErrorTestResource',
-    attributes: {
-        code: Joi.string().min(2).max(10),
-        description: Joi.string()
+    brands: {
+        type: 'brands',
+        attributes: {
+            code: Joi.string().min(2).max(10),
+            description: Joi.string()
+        }
     }
-}
+};
 
-const data = {
-    type: 'globalErrorTestResource',
-    attributes: {
-        code: 'ERROR',
-        description: 'An Error'
-    }
-}
-
-describe.skip('Global Error Handling', function () {
+describe('Global Error Handling', function () {
 
     before(() => {
-        return utils.buildDefaultServer(schema).then(server => {
-            return seeder(server).dropCollectionsAndSeed(data)
-        })
+        return utils.buildDefaultServer(schema)
     })
 
     after(utils.createDefaultServerDestructor())
@@ -49,4 +41,5 @@ describe.skip('Global Error Handling', function () {
 			})
 		})
 	})
+
 })
