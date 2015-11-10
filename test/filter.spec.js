@@ -1,19 +1,19 @@
 'use strict'
 
 const _ = require('lodash')
-const Promise = require('bluebird')
 const Joi = require('joi')
-const Hapi = require('hapi')
-
-let server, buildServer, destroyServer, hh;
+const seeder = require('./seeder');
+const utils = require('./utils');
 
 const schema = {
-    type: 'brands',
-    attributes: {
-        code: Joi.string().min(2).max(10),
-        year: Joi.number(),
-        series: Joi.number(),
-        description: Joi.string()
+    brands: {
+        type: 'brands',
+        attributes: {
+            code: Joi.string().min(2).max(10),
+            year: Joi.number(),
+            series: Joi.number(),
+            description: Joi.string()
+        }
     }
 };
 
@@ -28,32 +28,24 @@ const data = {
 };
 
 
-//TODO just done the validation, actual includes is remaining
 describe('Filtering', function() {
-    
-    beforeEach(function(done) {
-        buildServer(() => {
-            let promises = [];
-        
+
+    before(function() {
+        return utils.buildDefaultServer(schema).then((server) => {
+            var brands = [];
             _.times(10, (index) => {
-                let payload = Object.assign({}, data)
+                let payload = _.cloneDeep(data);
                 payload.attributes.year = 2000 + index;
                 payload.attributes.series = 0 + index;
-                promises.push(server.injectThen({method: 'post', url: '/brands', payload: {data : payload}}))
-            })
-            
-            return Promise.all(promises)
-            .then(() => {
-                done()
-            })
+                brands.push(payload);
+            });
+            return seeder(server).dropCollectionsAndSeed({brands: brands});
         })
-    })
-    
-    afterEach(function(done) {
-        destroyServer(done)
-    })
-    
-    it('Will be able to GET all from /brands with a equal filtering param', function() {
+    });
+
+    after(utils.createDefaultServerDestructor());
+
+    it('Will be able to GET all from /brands with a equal filtering param', function () {
         return server.injectThen({method: 'get', url: '/brands?filter[year]=2007'})
         .then((res) => {
             expect(res.result.data).to.have.length(1)
@@ -203,19 +195,3 @@ describe('Filtering', function() {
         })
     })
 })
-
-buildServer = function(done) {
-    return utils.buildServer(schema)
-        .then((res) => {
-            server = res.server;
-            hh = res.hh;
-            done()
-        })
-}
-
-destroyServer = function(done) {
-    utils.removeFromDB(server, 'brands')
-    .then((res) => {
-        server.stop(done)  
-    })
-}

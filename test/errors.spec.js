@@ -1,41 +1,36 @@
 'use strict'
 
-const Hapi = require('hapi')
 const Joi = require('joi')
 const should = require('should')
 
-let server, buildServer, destroyServer, hh
+const seeder = require('./seeder')
+const utils = require('./utils')
 
 const schema = {
-    type: 'brands',
+    type: 'globalErrorTestResource',
     attributes: {
         code: Joi.string().min(2).max(10),
-        year: Joi.number(),
-        series: Joi.number(),
         description: Joi.string()
     }
 }
 
 const data = {
-    type: 'brands',
+    type: 'globalErrorTestResource',
     attributes: {
-        code: 'MF',
-        year: 2007,
-        series: 5,
-        description: 'Massey Furgeson'
+        code: 'ERROR',
+        description: 'An Error'
     }
 }
 
-describe('Global Error Handling', function () {
-	beforeEach(function (done) {
-		buildServer(() => {
-			done();
-		})
-	})
+describe.skip('Global Error Handling', function () {
 
-    afterEach(function (done) {
-        destroyServer(done)
+    before(() => {
+        return utils.buildDefaultServer(schema).then(server => {
+            return seeder(server).dropCollectionsAndSeed(data)
+        })
     })
+
+    after(utils.createDefaultServerDestructor())
 
 	describe('Given a request for an invalid resource', function () {
 		it('should return a JSON+API compliant error', function () {
@@ -55,19 +50,3 @@ describe('Global Error Handling', function () {
 		})
 	})
 })
-
-buildServer = function(done) {
-    return utils.buildServer(schema)
-        .then((res) => {
-            server = res.server
-            hh = res.hh
-            done()
-        })
-}
-
-destroyServer = function(done) {
-    utils.removeFromDB(server, 'brands')
-    .then((res) => {
-        server.stop(done)
-    })
-}

@@ -1,19 +1,10 @@
 'use strict'
 
 const _ = require('lodash')
-const Joi = require('joi')
-const Promise = require('bluebird')
 const Hapi = require('hapi')
+const utils = require('./utils');
 
-let server, buildServer, destroyServer, hh;
-
-const schema = {
-    type: 'brands',
-    attributes: {
-        code: Joi.string().min(2).max(10),
-        description: Joi.string()
-    }
-};
+let server, destroyServer, hh;
 
 describe('Adapter Validation', function() {
     
