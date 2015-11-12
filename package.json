@@ -30,7 +30,8 @@
     "joi": "^6.9.0",
     "lodash": "^3.10.1",
     "mongoose": "^4.1.11",
-    "node-uuid": "^1.4.3"
+    "node-uuid": "^1.4.3",
+    "qs": "^6.0.0"
   },
   "devDependencies": {
     "chai": "^3.3.0",
