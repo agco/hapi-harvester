@@ -162,5 +162,23 @@ describe('remote link', function () {
             });
         });
 
+        describe('fetch posts include topic, author, author.country and comments when remote relationship is missing', function () {
+            before(function () {
+                const data = {
+                    type: 'posts',
+                    attributes: {},
+                    relationships: {comments: [{type: 'comments', id: '123'}]}
+                };
+                return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}});
+            });
+            it('should respond with 500', function () {
+                const that = this;
+                return server1.injectThen({method: 'get', url: '/posts?include=comments'})
+                    .then(function (response) {
+                        expect(response.statusCode).to.equal(500);
+                    });
+            });
+        });
+
     });
 });
