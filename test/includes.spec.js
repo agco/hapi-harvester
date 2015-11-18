@@ -192,8 +192,8 @@ describe('Inclusion', function () {
 
     describe('empty inclusion array', function () {
         it('should NOT throw error', function () {
-            const includes = require('../lib/includes.js')(hh.adapter, hh.schemas);
-            includes.appendLinkedResources({data: []}, 'people', []);
+            const includes = require('../lib/includes.js')(server, hh.adapter, hh.schemas);
+            includes.appendLinkedResources(null, {data: []}, 'people', []);
         });
     });
 });
