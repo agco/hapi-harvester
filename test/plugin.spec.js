@@ -53,7 +53,7 @@ buildServer = function(done) {
     server = new Hapi.Server()
     server.connection({port : 9100})
     server.register([
-        {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
+        {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test', baseUri: server.info.uri})}},
         {register: require('inject-then')}
     ], function() {
         hh = server.plugins.harvester;
