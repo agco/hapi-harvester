@@ -25,17 +25,21 @@
     "bluebird": "^2.10.2",
     "boom": "^2.9.0",
     "hapi": "^10.4.1",
+    "highland": "^2.5.1",
     "hoek": "^2.16.3",
     "http-as-promised": "^1.1.0",
     "joi": "^6.9.0",
     "lodash": "^3.10.1",
+    "mongojs": "^1.4.1",
     "mongoose": "^4.1.11",
     "node-uuid": "^1.4.3",
-    "qs": "^6.0.0"
+    "qs": "^6.0.0",
+    "susie": "^1.0.1"
   },
   "devDependencies": {
     "chai": "^3.3.0",
     "chai-things": "^0.2.0",
+    "event-source-stream": "git+https://github.com/agco/event-source-stream.git",
     "inject-then": "^2.0.2",
     "mocha": "^2.3.3",
     "should": "7.1.1"

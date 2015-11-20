@@ -71,11 +71,25 @@ module.exports = function (harvesterInstance) {
         });
     }
 
+    function seed(schema) {
+        var promises = _.map(schema, function (fixture, collectionName) {
+            return post(collectionName, fixture);
+        });
+        return Promise.all(promises).then(function (result) {
+            var response = {};
+            _.forEach(result, function (item) {
+                _.extend(response, item);
+            });
+            return response;
+        });
+    }
+
     if (null == harvesterInstance) {
         throw new Error('Harvester instance is required param');
     }
 
     return {
+        seed: seed,
         dropCollections: dropCollections,
         dropCollectionsAndSeed: dropCollectionsAndSeed
     }
