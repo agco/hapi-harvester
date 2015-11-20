@@ -24,7 +24,7 @@ var utils = {
         server.connection({port: options.port || 9100});
         return new Promise((resolve) => {
             server.register([
-                {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
+                {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test', baseUri: server.info.uri})}},
                 {register: require('inject-then')}
             ], () => {
                 hh = server.plugins.harvester;
