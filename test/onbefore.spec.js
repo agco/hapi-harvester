@@ -46,22 +46,22 @@ describe('Onbefore', function () {
         })
     })
     it('should respond with 124 on GET /brands/1', function () {
-        return server.injectThen({method: 'get', url: '/brands/1'}).then((res) => {
+        return server.injectThen({method: 'get', url: '/brands/2658b978-88db-4bb8-81bc-b005bf5c4bc4'}).then((res) => {
             expect(res.statusCode).to.equal(124)
         })
     })
     it('should respond with 125 on POST /brands', function () {
-        return server.injectThen({method: 'post', url: '/brands', payload: {}}).then((res) => {
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: {type: 'brands'}}}).then((res) => {
             expect(res.statusCode).to.equal(125)
         })
     })
     it('should respond with 126 on PATCH /brands', function () {
-        return server.injectThen({method: 'patch', url: '/brands/1', payload: {}}).then((res) => {
+        return server.injectThen({method: 'patch', url: '/brands/2658b978-88db-4bb8-81bc-b005bf5c4bc4', payload: {data:{type:'brands'}}}).then((res) => {
             expect(res.statusCode).to.equal(126)
         })
     })
     it('should respond with 127 on DELETE /brands', function () {
-        return server.injectThen({method: 'delete', url: '/brands/1', payload: {}}).then((res) => {
+        return server.injectThen({method: 'delete', url: '/brands/2658b978-88db-4bb8-81bc-b005bf5c4bc4', payload: {}}).then((res) => {
             expect(res.statusCode).to.equal(127)
         })
     })

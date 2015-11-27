@@ -41,8 +41,11 @@
     "agco-event-source-stream": "^1.1.1",
     "chai": "^3.3.0",
     "chai-things": "^0.2.0",
+    "hapi-swagger": "^2.2.4",
+    "inert": "^3.2.0",
     "inject-then": "^2.0.2",
     "mocha": "^2.3.3",
-    "should": "7.1.1"
+    "should": "7.1.1",
+    "vision": "^4.0.1"
   }
 }

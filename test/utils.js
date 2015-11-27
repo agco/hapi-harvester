@@ -1,7 +1,7 @@
 'use strict';
 
-var _ = require('lodash');
-var config = require('./config');
+const _ = require('lodash');
+const config = require('./config');
 
 var utils = {
     getData: (res) => {
@@ -17,7 +17,7 @@ var utils = {
     },
     buildServer: (schemas, options) => {
         options = options || {};
-        let server, hh;
+        let server;
         const Hapi = require('hapi');
         const plugin = require('../');
         const adapter = plugin.getAdapter('mongodb');
@@ -31,19 +31,32 @@ var utils = {
                         adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), oplogConnectionString: config.getMongodbUrl('local')})
                     }
                 },
-                {
-                    register: require('susie')
-                },
+                {register: require('susie')},
                 {register: require('inject-then')}
             ], () => {
-                hh = server.plugins['harvester'];
+                let harvester = server.plugins.harvester;
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
-                        ['get', 'getById', 'getChangesStreaming', 'post', 'patch', 'delete'].forEach(function (verb) {
-                            server.route(hh.routes[verb](schema))
+                        [
+                            'get',
+                            'getById',
+                            'getChangesStreaming',
+                            'post',
+                            'patch',
+                            'delete'
+                        ].forEach(function (verb) {
+                            const route = harvester.routes[verb](schema)
+                            if (_.isArray(route)) {
+                                _.forEach(route, function (route) {
+                                    server.route(route)
+                                });
+                            } else {
+                                server.route(route)
+                            }
                         })
+
                     });
-                    resolve({server, hh})
+                    resolve({server, harvester})
                 })
             })
         });
@@ -51,7 +64,7 @@ var utils = {
     buildDefaultServer: function (schemas) {
         return utils.buildServer(schemas).then(function (res) {
             global.server = res.server;
-            global.hh = res.hh;
+            global.harvester = res.harvester;
             return res.server;
         });
     },

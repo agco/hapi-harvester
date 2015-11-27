@@ -167,9 +167,11 @@ describe('remote link', function () {
                 const data = {
                     type: 'posts',
                     attributes: {},
-                    relationships: {comments: [{type: 'comments', id: '123'}]}
+                    relationships: {comments: [{type: 'comments', id: '00000000-0000-4000-b000-000000000000'}]}
                 };
-                return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}});
+                return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}}).then(function (result) {
+                    expect(result.statusCode).to.equal(201)
+                })
             });
             it('should respond with 500', function () {
                 const that = this;
