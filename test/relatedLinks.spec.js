@@ -150,6 +150,7 @@ describe('Related links', () => {
                         const relatedLink = person.relationships.pets[0].links.related;
                         const path = url.parse(relatedLink).path;
                         expect(relatedLink).to.be.a.String;
+                        console.log('RELATED LINK ', relatedLink);
                         expect(path).to.equal("/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets/c344d722-b7f9-49dd-9842-f0a375f7dfdc");
                     });
             });
