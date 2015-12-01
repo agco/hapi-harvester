@@ -3,6 +3,7 @@
 const _ = require('lodash')
 const seeder = require('./seeder')
 const Joi = require('joi')
+const url = require('url')
 const utils = require('./utils')
 
 const schema = {
@@ -146,7 +147,10 @@ describe('Related links', () => {
                         expect(res.statusCode).to.equal(200);
                         const person = res.result.data;
                         expect(person).to.exist;
-                        expect(person.relationships.pets[0].links.related).to.be.a.String;
+                        const relatedLink = person.relationships.pets[0].links.related;
+                        const path = url.parse(relatedLink).path;
+                        expect(relatedLink).to.be.a.String;
+                        expect(path).to.equal("/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets/c344d722-b7f9-49dd-9842-f0a375f7dfdc");
                     });
             });
         });

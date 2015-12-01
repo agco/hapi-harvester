@@ -9,7 +9,7 @@ server.register({
     register: hhPlugin, 
     options: {
        // bootstrap with a prebuilt adapter
-        adapter: require('hapi-harvester/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test', baseUri: server.info.uri})
+        adapter: require('hapi-harvester/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
         // ...
     }
 }, function (err) {
