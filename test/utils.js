@@ -24,13 +24,21 @@ var utils = {
         server.connection({port: options.port || 9100});
         return new Promise((resolve) => {
             server.register([
-                {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test', baseUri: server.info.uri})}},
+                {
+                    register: require('../'),
+                    options: {
+                        adapter: adapter({mongodbUrl: 'mongodb://localhost/test', oplogConnectionString: 'mongodb://127.0.0.1:27017/local?slaveOk=true'})
+                    }
+                },
+                {
+                    register: require('susie')
+                },
                 {register: require('inject-then')}
             ], () => {
                 hh = server.plugins.harvester;
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
-                        ['get', 'getById', 'post', 'patch', 'delete'].forEach(function (verb) {
+                        ['get', 'getById', 'getChangesStreaming', 'post', 'patch', 'delete'].forEach(function (verb) {
                             server.route(hh.routes[verb](schema))
                         })
                     });
