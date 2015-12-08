@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const Promise = require('bluebird')
-var ess = require('event-source-stream')
+var ess = require('agco-event-source-stream')
 const Joi = require('joi')
 const utils = require('./utils')
 const seeder = require('./seeder')
