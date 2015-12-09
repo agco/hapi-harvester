@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var config = require('./config');
 
 var utils = {
     getData: (res) => {
@@ -9,7 +10,7 @@ var utils = {
     },
     removeFromDB: (server, collections) => {
         var promises = _.map(collections, function (item) {
-            const model = server.plugins.harvester.adapter.models[item];
+            const model = server.plugins['harvester'].adapter.models[item];
             return model.remove({}).lean().exec();
         });
         return Promise.all(promises);
@@ -27,7 +28,7 @@ var utils = {
                 {
                     register: require('../'),
                     options: {
-                        adapter: adapter({mongodbUrl: 'mongodb://localhost/test', oplogConnectionString: 'mongodb://127.0.0.1:27017/local?slaveOk=true'})
+                        adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), oplogConnectionString: config.getMongodbUrl('local')})
                     }
                 },
                 {
@@ -35,7 +36,7 @@ var utils = {
                 },
                 {register: require('inject-then')}
             ], () => {
-                hh = server.plugins.harvester;
+                hh = server.plugins['harvester'];
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
                         ['get', 'getById', 'getChangesStreaming', 'post', 'patch', 'delete'].forEach(function (verb) {
