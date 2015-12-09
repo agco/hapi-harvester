@@ -7,10 +7,10 @@ const schema = {
     brands: {
         type: 'brands',
         attributes: {},
-        config: {
-            plugins: {
-                harvester: {
-                    before(req, reply) {
+            config: {
+                ext: {
+                    onPreHandler: {
+                        method(req, reply) {
                         let code = 404;
                         if (req.method === 'get') {
                             if (req.params.id) {
