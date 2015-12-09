@@ -1,0 +1,34 @@
+mongo1:
+  hostname: mongo1
+  image: mongo:2.6.8
+  entrypoint: [ "mongod", "--replSet", "rs", "--journal", "--smallfiles", "--rest" ]
+  ports:
+    - "27017:27017"
+    - "28017:28017"
+  restart: always
+
+# This configures the MongoDB replicaset
+mongosetup:
+  image: mongo:2.6.8
+  links:
+    - mongo1:mongo1
+  volumes:
+    - ./scripts:/scripts
+  entrypoint: [ "/scripts/setup.sh" ]
+
+# Verify reading and writing
+# Run 'docker logs -f elasticmongo_verify_1' to see what it outputs.
+verify:
+  image: mongo:2.6.8
+  links:
+    - mongo1:mongo1
+  volumes:
+    - ./scripts:/scripts
+  entrypoint: [ "/scripts/query.sh" ]
+
+msh:
+  image: mongo:2.6.8
+  links:
+    - mongo1:mongo1
+  command: mongo --host mongo1
+

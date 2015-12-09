@@ -24,7 +24,7 @@ server.register({
     }
     
     // retrieve the plugin namespace from the server object
-    const hh = server.plugins['hh']
+    const hh = server.plugins.harvester
     // call routes.get to generate a hapi route definition  
     const brandsGet = hh.routes.get(brands)
     // register the route

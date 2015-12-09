@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const utils = require('./utils');
+const config = require('./config')
 
 let server, buildServer, destroyServer, hh;
 
@@ -53,10 +54,10 @@ buildServer = function(done) {
     server = new Hapi.Server()
     server.connection({port : 9100})
     server.register([
-        {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test', baseUri: server.info.uri})}},
+        {register: require('../'), options: {adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), baseUri: server.info.uri})}},
         {register: require('inject-then')}
     ], function() {
-        hh = server.plugins.harvester;
+        hh = server.plugins['harvester'];
         server.start(done)
     })
 }

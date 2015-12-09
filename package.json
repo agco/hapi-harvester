@@ -4,6 +4,7 @@
   "description": "Harvester Hapi Plugin",
   "main": "index.js",
   "scripts": {
+    "setup": "cd docker && ./start.sh",
     "test": "mocha test"
   },
   "repository": {
