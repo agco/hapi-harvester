@@ -6,36 +6,40 @@ const seeder = require('./seeder');
 const schema = {
     brands: {
         type: 'brands',
-        attributes: {},
-            config: {
-                ext: {
-                    onPreHandler: {
-                        method(req, reply) {
-                        let code = 404;
-                        if (req.method === 'get') {
-                            if (req.params.id) {
-                                code = 124;
-                            } else {
-                                code = 123
-                            }
-                        } else if (req.method === 'post') {
-                            code = 125;
-                        } else if (req.method === 'patch') {
-                            code = 126;
-                        } else if (req.method === 'delete') {
-                            code = 127;
-                        }
-                        reply().code(code);
-                    }
-                }
-            }
-        }
+        attributes: {}
     }
 };
 
 describe('Onbefore', function () {
+
     before(function () {
-        return utils.buildDefaultServer(schema);
+        return utils.buildDefaultServer().then(function () {
+            hh.route(schema.brands, {
+                config: {
+                    ext: {
+                        onPreHandler: {
+                            method(req, reply) {
+                                let code = 404;
+                                if (req.method === 'get') {
+                                    if (req.params.id) {
+                                        code = 124;
+                                    } else {
+                                        code = 123
+                                    }
+                                } else if (req.method === 'post') {
+                                    code = 125;
+                                } else if (req.method === 'patch') {
+                                    code = 126;
+                                } else if (req.method === 'delete') {
+                                    code = 127;
+                                }
+                                reply().code(code);
+                            }
+                        }
+                    }
+                }
+            })
+        })
     });
 
     after(utils.createDefaultServerDestructor());
