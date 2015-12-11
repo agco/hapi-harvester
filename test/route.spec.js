@@ -25,7 +25,7 @@ describe('Route syntax sugar', function () {
     afterEach(utils.createDefaultServerDestructor())
 
     it('should register all routes for a schema', function () {
-        hh.route(schema.brands)
+        harvester.route(schema.brands)
         assertRoutes([
             ['get', '/brands'],
             ['get', '/brands/{id}'],
@@ -39,7 +39,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register readonly routes for a schema', function () {
-        hh.route(schema.brands, 'readonly')
+        harvester.route(schema.brands, 'readonly')
 
         assertRoutes([
             ['get', '/brands'],
@@ -60,7 +60,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register immutable routes for a schema', function () {
-        hh.route(schema.brands, 'immutable')
+        harvester.route(schema.brands, 'immutable')
 
         assertRoutes([
             ['get', '/brands'],
@@ -80,7 +80,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register specific routes for a schema', function () {
-        hh.route(schema.brands, ['get', 'getById'])
+        harvester.route(schema.brands, ['get', 'getById'])
 
         assertRoutes([
             ['get', '/brands'],
@@ -100,7 +100,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register all routes for a schema with options merged', function () {
-        hh.route(schema.brands, {
+        harvester.route(schema.brands, {
             config: {
                 tags: ['mytag']
             }
@@ -120,7 +120,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register readonly routes for a schema with options merged only for those routes', function () {
-        hh.route(schema.brands, 'readonly', {
+        harvester.route(schema.brands, 'readonly', {
             config: {
                 tags: ['mytag']
             }
@@ -147,7 +147,7 @@ describe('Route syntax sugar', function () {
     it('should throw an error when the schema parameter is missing', function () {
 
         function createBrandsRoute() {
-            hh.route()
+            harvester.route()
         }
         expect(createBrandsRoute).to.throw(Error);
 
@@ -157,7 +157,7 @@ describe('Route syntax sugar', function () {
         'or a plain object representing the options ', function () {
 
         function createBrandsRoute() {
-            hh.route(schema.brands, ()=>{})
+            harvester.route(schema.brands, ()=>{})
         }
         expect(createBrandsRoute).to.throw(Error);
 
@@ -166,7 +166,7 @@ describe('Route syntax sugar', function () {
     it('should throw an error when the third parameter a plain object representing the options ', function () {
 
         function createBrandsRoute() {
-            hh.route(schema.brands, 'get', ()=>{})
+            harvester.route(schema.brands, 'get', ()=>{})
         }
         expect(createBrandsRoute).to.throw(Error);
 

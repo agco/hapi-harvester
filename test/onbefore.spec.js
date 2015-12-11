@@ -14,7 +14,7 @@ describe('Onbefore', function () {
 
     before(function () {
         return utils.buildDefaultServer().then(function () {
-            hh.route(schema.brands, {
+            harvester.route(schema.brands, {
                 config: {
                     ext: {
                         onPreHandler: {
