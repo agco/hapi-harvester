@@ -26,7 +26,7 @@ describe('Adapter Validation', function() {
                 {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}
             ], () => {
-                hh = server.plugins.harvester;
+                harvester = server.plugins.harvester;
                 server.start(()=> {})   
             })  
         }
@@ -45,7 +45,7 @@ describe('Adapter Validation', function() {
                 {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}
             ], () => {
-                hh = server.plugins.harvester;
+                harvester = server.plugins.harvester;
                 server.start(()=> {})   
             })  
         }
