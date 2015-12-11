@@ -37,12 +37,12 @@ describe('Plugin Basics', function() {
     it('only sends the available verbs on OPTIONS call', function() {
 
         ['get', 'post', 'patch', 'delete'].forEach(function(verb) {
-            server.route(hh.routes[verb](schema))
+            server.route(server.plugins.harvester.routes[verb](schema))
         })
 
         return server.injectThen({method: 'OPTIONS', url: '/brands'})
         .then(function(res) {
-            expect(res.headers.allow).to.equal('OPTIONS,GET,POST,PATCH,DELETE')
+            expect(res.headers.allow.split(',').sort()).to.eql('OPTIONS,GET,POST,PATCH,DELETE'.split(',').sort())
         })
     })
 })
@@ -57,7 +57,6 @@ buildServer = function(done) {
         {register: require('../'), options: {adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), baseUri: server.info.uri})}},
         {register: require('inject-then')}
     ], function() {
-        hh = server.plugins['harvester'];
         server.start(done)
     })
 }

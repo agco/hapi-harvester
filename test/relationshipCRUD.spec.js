@@ -94,7 +94,7 @@ const data = {
         {
             type: 'collars',
             relationships: {
-                collarOwner: {type: 'collars', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                collarOwner: {type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
             }
         }
     ]
@@ -144,6 +144,79 @@ describe('Relationship CRUD', function () {
                         expect(body.data.relationships.soulmate).to.be.null
                     })
             })
+            it('should respond with 400 status code when data missing', function () {
+                const payload = {}
+                return server.injectThen({method: 'patch', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate', payload: payload})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(400)
+                        const body = JSON.parse(res.payload)
+                        expect(body.errors).to.have.length(1)
+                        expect(body.errors[0]).to.have.deep.property('validation.keys')
+                        expect(body.errors[0].validation.keys).to.include('data')
+                    })
+            })
+            it('should respond with 400 status code when id is not UUID v4', function () {
+                const payload = {
+                    data: {
+                        type: 'soulmate',
+                        id: '123'
+                    }
+                }
+                return server.injectThen({method: 'patch', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate', payload: payload})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(400)
+                        const body = JSON.parse(res.payload)
+                        expect(body.errors).to.have.length(1)
+                        expect(body.errors[0]).to.have.deep.property('validation.keys')
+                        expect(body.errors[0].validation.keys).to.include('data.id')
+                    })
+            });
+            it('should respond with 400 status code when id is missing', function () {
+                const payload = {
+                    data: {
+                        type: 'people'
+                    }
+                }
+                return server.injectThen({method: 'patch', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate', payload: payload})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(400)
+                        const body = JSON.parse(res.payload)
+                        expect(body.errors).to.have.length(1)
+                        expect(body.errors[0]).to.have.deep.property('validation.keys')
+                        expect(body.errors[0].validation.keys).to.include('data.id')
+                    })
+            });
+            it('should respond with 400 status code when type is invalid', function () {
+                const payload = {
+                    data: {
+                        type: 'zonk',
+                        id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc'
+                    }
+                }
+                return server.injectThen({method: 'patch', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate', payload: payload})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(400)
+                        const body = JSON.parse(res.payload)
+                        expect(body.errors).to.have.length(1)
+                        expect(body.errors[0]).to.have.deep.property('validation.keys')
+                        expect(body.errors[0].validation.keys).to.include('data.type')
+                    })
+            });
+            it('should respond with 400 status code when type is missing', function () {
+                const payload = {
+                    data: {
+                        id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc'
+                    }
+                }
+                return server.injectThen({method: 'patch', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate', payload: payload})
+                    .then(function (res) {
+                        expect(res.statusCode).to.equal(400)
+                        const body = JSON.parse(res.payload)
+                        expect(body.errors).to.have.length(1)
+                        expect(body.errors[0]).to.have.deep.property('validation.keys')
+                        expect(body.errors[0].validation.keys).to.include('data.type')
+                    })
+            });
         })
         describe('DELETE', function () {
             it('should delete relationship ', function () {
@@ -158,8 +231,14 @@ describe('Relationship CRUD', function () {
             })
         })
         describe('POST', function () {
-            it('should delete relationship ', function () {
-                return server.injectThen({method: 'post', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate'})
+            it('should respond with 403', function () {
+                const payload = {
+                    data: {
+                        type: 'people',
+                        id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'
+                    }
+                }
+                return server.injectThen({method: 'post', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate', payload: payload})
                     .then(function (res) {
                         expect(res.statusCode).to.equal(403)
                     })

@@ -94,7 +94,7 @@ const data = {
         {
             type: 'collars',
             relationships: {
-                collarOwner: {type: 'collars', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                collarOwner: {type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
             }
         }
     ]
@@ -192,7 +192,7 @@ describe('Inclusion', function () {
 
     describe('empty inclusion array', function () {
         it('should NOT throw error', function () {
-            const includes = require('../lib/includes.js')(server, hh.adapter, hh.schemas);
+            const includes = require('../lib/includes.js')(server, harvester.adapter, harvester.schemas);
             includes.appendLinkedResources(null, {data: []}, 'people', []);
         });
     });

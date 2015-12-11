@@ -84,7 +84,7 @@ describe('Rest operations when things go right', function() {
         })
         
         return Promise.all(promises)
-        .then((res) => {
+        .then(() => {
             return server.injectThen({method: 'get', url: '/brands'})
         })
         .then((res) => {
@@ -169,6 +169,16 @@ describe('Rest operations when things go wrong', function() {
             expect(res.statusCode).to.equal(400)
         })
     })
+
+    it('Won\'t be able to POST to /brands when data is missing', function () {
+        return server.injectThen({method: 'post', url: '/brands', payload: {}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
+            const body = JSON.parse(res.payload)
+            expect(body.errors).to.have.length(1)
+            expect(body.errors[0]).to.have.deep.property('validation.keys')
+            expect(body.errors[0].validation.keys).to.include('data')
+        })
+    })
     
     it('Won\'t be able to POST to /brands with a payload that doesn\'t have a type property', function() {
         
@@ -190,6 +200,26 @@ describe('Rest operations when things go wrong', function() {
             expect(res.statusCode).to.equal(400)
         })
     })
+
+    it('Won\'t be able to POST to /brands with an invalid type', function() {
+
+        let payload = _.cloneDeep(data);
+        payload.type = 'zonk'
+
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
+        })
+    })
+
+    it('Won\'t be able to POST to /brands with without type', function() {
+
+        let payload = _.cloneDeep(data);
+        delete payload.type
+
+        return server.injectThen({method: 'post', url: '/brands', payload: {data: payload}}).then((res) => {
+            expect(res.statusCode).to.equal(400)
+        })
+    })
     
     it('Won\'t be able to POST to /brands with a payload that has attributes that don\'t match the schema', function() {
         
@@ -203,8 +233,8 @@ describe('Rest operations when things go wrong', function() {
     
     it('Won\'t be able to GET by id from /brands if id is wrong', function() {
         return server.injectThen({method: 'post', url: '/brands', payload: {data}})
-        .then((res) => {
-            return server.injectThen({method: 'get', url: '/brands/foo'})
+        .then(() => {
+            return server.injectThen({method: 'get', url: '/brands/2658b978-88db-4bb8-81bc-b005bf5c4bc4'})
         })
         .then((res) => {
             expect(res.statusCode).to.equal(404)
@@ -213,14 +243,15 @@ describe('Rest operations when things go wrong', function() {
     
     it('Will be able to PATCH in /brands with wrong id', function() {
         const payload = {
+            type: 'brands',
             attributes: {
                 code: 'VT',
                 description: 'Valtra'
             }
         };
         return server.injectThen({method: 'post', url: '/brands', payload: {data}})
-        .then((res) => {
-            return server.injectThen({method: 'patch', url: '/brands/foo', payload: {data : payload}})
+        .then(() => {
+            return server.injectThen({method: 'patch', url: '/brands/2658b978-88db-4bb8-81bc-b005bf5c4bc4', payload: {data : payload}})
         })
         .then((res) => {
             expect(res.statusCode).to.equal(404)
