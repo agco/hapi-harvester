@@ -59,7 +59,7 @@ describe('Swagger docs', function () {
                             'patch',
                             'delete'
                         ].forEach(function (verb) {
-                            const route = server.plugins.harvester.routes[verb](schema)
+                            const route = server.plugins['hapi-harvester'].routes[verb](schema)
                             if (_.isArray(route)) {
                                 _.forEach(route, function (route) {
                                     server.route(route)

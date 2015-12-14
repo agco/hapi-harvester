@@ -26,7 +26,7 @@ describe('Adapter Validation', function() {
                 {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}
             ], () => {
-                harvester = server.plugins.harvester;
+                harvester = server.plugins['hapi-harvester'];
                 server.start(()=> {})   
             })  
         }
@@ -45,7 +45,7 @@ describe('Adapter Validation', function() {
                 {register: require('../lib/plugin'), options: {adapter : adapter}},
                 {register: require('inject-then')}
             ], () => {
-                harvester = server.plugins.harvester;
+                harvester = server.plugins['hapi-harvester'];
                 server.start(()=> {})   
             })  
         }

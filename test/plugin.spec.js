@@ -24,7 +24,7 @@ describe('Plugin Basics', function() {
     })
 
     it('Attaches the plugin to Hapi server configuration', function() {
-        expect(server.plugins.harvester.version).to.equal('0.1.0')
+        expect(server.plugins['hapi-harvester'].version).to.equal('0.1.0')
     })
 
     it('should have the injectThen method available', function() {
@@ -37,7 +37,7 @@ describe('Plugin Basics', function() {
     it('only sends the available verbs on OPTIONS call', function() {
 
         ['get', 'post', 'patch', 'delete'].forEach(function(verb) {
-            server.route(server.plugins.harvester.routes[verb](schema))
+            server.route(server.plugins['hapi-harvester'].routes[verb](schema))
         })
 
         return server.injectThen({method: 'OPTIONS', url: '/brands'})

@@ -10,7 +10,7 @@ describe('remote link', function () {
 
     let server1, server2;
 
-    describe('given 2 resources : \'posts\', \'people\' ; defined on distinct harvesterjs servers ' +
+    describe('given 2 resources : \'posts\', \'people\' ; defined on distinct harvester servers ' +
         'and posts has a remote link \'author\' defined to people', function () {
 
         const app1Port = 8011;

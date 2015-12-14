@@ -10,7 +10,7 @@ var utils = {
     },
     removeFromDB: (server, collections) => {
         var promises = _.map(collections, function (item) {
-            const model = server.plugins['harvester'].adapter.models[item];
+            const model = server.plugins['hapi-harvester'].adapter.models[item];
             return model.remove({}).lean().exec();
         });
         return Promise.all(promises);
@@ -34,7 +34,7 @@ var utils = {
                 {register: require('susie')},
                 {register: require('inject-then')}
             ], () => {
-                let harvester = server.plugins.harvester;
+                let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
                         [
