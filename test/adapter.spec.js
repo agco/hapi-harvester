@@ -4,7 +4,7 @@ const _ = require('lodash')
 const Hapi = require('hapi')
 const utils = require('./utils');
 
-let server, destroyServer, hh;
+let server, destroyServer, harvester;
 
 describe('Adapter Validation', function() {
     

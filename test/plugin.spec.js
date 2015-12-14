@@ -4,7 +4,7 @@ const Joi = require('joi')
 const utils = require('./utils');
 const config = require('./config')
 
-let server, buildServer, destroyServer, hh;
+let server, buildServer, destroyServer;
 
 const schema = {
     type: 'brands',
