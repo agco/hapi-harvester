@@ -2,7 +2,8 @@
 
 const Joi = require('joi')
 const utils = require('./utils');
-const config = require('./config')
+const Hapi = require('hapi');
+const url = require('url');
 
 let server, buildServer, destroyServer;
 
@@ -45,17 +46,34 @@ describe('Plugin Basics', function() {
             expect(res.headers.allow.split(',').sort()).to.eql('OPTIONS,GET,POST,PATCH,DELETE'.split(',').sort())
         })
     })
+
+    it('defaults to a Dockerized Mongodb if an adapter is not provided', function (done) {
+
+        server = new Hapi.Server()
+        server.connection({port: 9100})
+
+        server.register([
+            require('../lib/plugin'),
+            require('inject-then')
+        ], () => {
+            const harvester = server.plugins['hapi-harvester'];
+            server.start(()=> {
+                const dockerHostUrl = process.env.DOCKER_HOST;
+                expect(harvester.adapter.options.mongodbUrl).to.equal(`mongodb://${url.parse(dockerHostUrl).hostname}:27017/sample`)
+                expect(harvester.adapter.options.oplogConnectionString).to.equal(`mongodb://${url.parse(dockerHostUrl).hostname}:27017/local`)
+                done()
+            })
+        })
+    })
+
 })
 
 buildServer = function(done) {
-    const Hapi = require('hapi')
-    const plugin = require('../')
-    const adapter = plugin.getAdapter('mongodb')
     server = new Hapi.Server()
-    server.connection({port : 9100})
+    server.connection()
     server.register([
-        {register: require('../'), options: {adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), baseUri: server.info.uri})}},
-        {register: require('inject-then')}
+        require('../'),
+        require('inject-then')
     ], function() {
         server.start(done)
     })

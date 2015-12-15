@@ -37,14 +37,9 @@ describe('Swagger docs', function () {
             server = new Hapi.Server()
             server.connection({port: 9100})
             server.register([
-                {
-                    register: require('../'),
-                    options: {
-                        adapter: adapter({mongodbUrl: 'mongodb://localhost/test', oplogConnectionString: 'mongodb://127.0.0.1:27017/local?slaveOk=true'})
-                    }
-                },
-                {register: require('susie')},
-                {register: require('inject-then')},
+                require('../'),
+                require('susie'),
+                require('inject-then'),
                 require('inert'),
                 require('vision'),
                 {register: require('hapi-swagger'), options: {apiVersion: require('../package.json').version}}

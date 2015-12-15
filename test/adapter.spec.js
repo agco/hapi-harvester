@@ -4,56 +4,42 @@ const _ = require('lodash')
 const Hapi = require('hapi')
 const utils = require('./utils');
 
-let server, destroyServer, harvester;
+describe('Adapter Validation', function () {
 
-describe('Adapter Validation', function() {
-    
-    afterEach(function(done) {
-        destroyServer(done);
+    it('Will succeed if passed a valid adapter ', function () {
+
+        let adapter = require('../').getAdapter('mongodb')()
+        expect(buildServerSetupWithAdapter(adapter)).to.not.throw(Error)
     })
-    
-    it('Will check the given adapter for the required functions', function() {
-        let adapter = require('../').getAdapter('mongodb')
-        
-        adapter = _.remove(adapter, 'delete');
-        
-        //rebuild server with the aling adapter
-        server = new Hapi.Server()
-        server.connection({port : 9100})
-        
-        const serverSetup = function() {
-            server.register([
-                {register: require('../lib/plugin'), options: {adapter : adapter}},
-                {register: require('inject-then')}
-            ], () => {
-                harvester = server.plugins['hapi-harvester'];
-                server.start(()=> {})   
-            })  
+
+    it('Will fail if the given adapter is missing a required function', function () {
+
+        let adapter = require('../').getAdapter('mongodb')()
+        adapter = _.omit(adapter, 'delete');
+        expect(buildServerSetupWithAdapter(adapter)).to.throw('Adapter validation failed. Adapter missing delete')
+    })
+
+    it('Will won\'t accept a string adapter if it doesn\'t exist ', function () {
+        function constructAdapter() {
+            require('../').getAdapter('nonexistant')
         }
-        
-        expect(serverSetup).to.throw('Adapter validation failed. Adapter missing connect')
+        expect(constructAdapter).to.throw('Wrong adapter name, see docs for built in adapter')
     })
-    
-    it('Will won\'t accept a string adapter if it doesn\'t exist ', function() {
-        //rebuild server with the aling adapter
-        server = new Hapi.Server()
-        server.connection({port : 9100})
-        
-        const serverSetup = function() {
-            const adapter = require('../').getAdapter('nonexistant')
-            server.register([
-                {register: require('../lib/plugin'), options: {adapter : adapter}},
-                {register: require('inject-then')}
-            ], () => {
-                harvester = server.plugins['hapi-harvester'];
-                server.start(()=> {})   
-            })  
-        }
-        
-        expect(serverSetup).to.throw('Wrong adapter name, see docs for built in adapter')
-    })
+
 })
 
-destroyServer = function(done) {
-    server.stop(done)
+function buildServerSetupWithAdapter(adapter) {
+    return function () {
+        var server = new Hapi.Server()
+        server.connection()
+
+        server.register([
+            {register: require('../'), options: {adapter: adapter}},
+            {register: require('inject-then')}
+        ], () => {
+            server.start(()=> {
+            })
+        })
+    }
 }
+

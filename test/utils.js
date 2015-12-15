@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const config = require('./config');
 
 var utils = {
     getData: (res) => {
@@ -24,15 +23,7 @@ var utils = {
         server = new Hapi.Server();
         server.connection({port: options.port || 9100});
         return new Promise((resolve) => {
-            server.register([
-                {
-                    register: require('../'),
-                    options: {
-                        adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), oplogConnectionString: config.getMongodbUrl('local')})
-                    }
-                },
-                {register: require('susie')},
-                {register: require('inject-then')}
+            server.register([require('../'), require('susie'), require('inject-then')
             ], () => {
                 let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
