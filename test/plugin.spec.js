@@ -47,19 +47,38 @@ describe('Plugin Basics', function() {
         })
     })
 
-    it('defaults to a Dockerized Mongodb if an adapter is not provided', function (done) {
+    it('performs a fallback to Mongodb on a docker host if an adapter is not provided', function (done) {
 
         server = new Hapi.Server()
         server.connection()
         server.register([
-            require('../lib/plugin'),
-            require('inject-then')
+            require('../lib/plugin')
         ], () => {
             const harvester = server.plugins['hapi-harvester'];
             server.start(()=> {
                 const dockerHostUrl = process.env.DOCKER_HOST;
                 expect(harvester.adapter.options.mongodbUrl).to.equal(`mongodb://${url.parse(dockerHostUrl).hostname}:27017/sample`)
                 expect(harvester.adapter.options.oplogConnectionString).to.equal(`mongodb://${url.parse(dockerHostUrl).hostname}:27017/local`)
+                done()
+            })
+        })
+    })
+
+    it('performs a fallback to Mongodb on localhost if an adapter is not provided and DOCKER_HOST env variable not set', function (done) {
+
+        const dockerHostUrl = process.env.DOCKER_HOST;
+        process.env.DOCKER_HOST = ''
+
+        server = new Hapi.Server()
+        server.connection()
+        server.register([
+            require('../lib/plugin')
+        ], () => {
+            const harvester = server.plugins['hapi-harvester'];
+            server.start(()=> {
+                expect(harvester.adapter.options.mongodbUrl).to.equal(`mongodb://localhost:27017/sample`)
+                expect(harvester.adapter.options.oplogConnectionString).to.equal(`mongodb://localhost:27017/local`)
+                process.env.DOCKER_HOST = dockerHostUrl
                 done()
             })
         })
