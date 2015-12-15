@@ -48,8 +48,9 @@ describe('Plugin Basics', function() {
         })
     })
 
-    it('performs a fallback to Mongodb on a docker host if an adapter is not provided', function (done) {
+    it('performs a fallback to Mongodb on a docker host if an adapter is not provided and the DOCKER_HOST env variable is set', function (done) {
 
+        process.env.DOCKER_HOST = 'tcp://localhost:2376'
         server = new Hapi.Server()
         server.connection()
         server.register([
