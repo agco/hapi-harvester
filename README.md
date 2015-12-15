@@ -1,19 +1,19 @@
 # hapi-harvester
 
+a JSONAPI 1.0 plugin for Hapi
+
+[![Build Status](https://travis-ci.org/agco/hapi-harvester.svg?branch=develop)](https://travis-ci.org/agco/hapi-harvester)
+[![Coverage Status](https://coveralls.io/repos/agco/hapi-harvester/badge.svg?branch=feature%2Fhh-30&service=github)](https://coveralls.io/github/agco/hapi-harvester?branch=develop)
+
+## Overview
+
+Harvester is a Hapi plugin which enables you to quickly define resources conform to the JSONAPI 1.0 spec in an easy, boilerplate-free manner.  
 
 ```js
-const hhPlugin = require('hapi-harvester')
-
 // initialise a hapi server... register the hapi-harvester plugin
 server.register({
-    register: hhPlugin, 
-    options: {
-       // bootstrap with a prebuilt adapter
-        adapter: require('hapi-harvester/adapters/mongodb')({mongodbUrl: 'mongodb://localhost/test'})
-        // ...
-    }
+    register: require('hapi-harvester')
 }, function (err) {
-    
     // define a jsonapi schema with Joi validation 
     var brands = {
         type: 'brands',
@@ -22,57 +22,30 @@ server.register({
             description: Joi.string()
         }
     }
-    
     // retrieve the plugin namespace from the server object
-    const hh = server.plugins.harvester
-    // call routes.get to generate a hapi route definition  
-    const brandsGet = hh.routes.get(brands)
-    // register the route
-    server.route(brandsGet)
-    
+    const hh = server.plugins['hapi-harvester]
+    // register the routes 
+    const brandsGet = hh.route(brands)
 })
 ```
 
-```js
+## Features
 
-// routes.get generates a plain hapi route definition
-{ method: 'GET',
-  path: '/series',
-  config: { 
-    validate: 
-        { 
-            query: {
-                filter : {
-                    id: Joi.string().guid().description('id'),
-                    code: Joi.string(),
-                    description: Joi.string()
-                } 
-            }, 
-            options: {
-                allowUnknown: true
-            } 
-        } 
-    },
-    handler: [Function] }
-    
-// add, remove, change route definition properties before registering it as a route 
-server.route(_.merge(brandsGet, {
-        config: {
-            auth: false, // skip authentication
-            // properties below are used by hapi-swagger
-            description: 'Get brands',
-            notes: 'Returns all the brands we are looking for',
-            tags: ['api']
-        }
-    }))
+#### JSON-API 1.0 
 
-```
+- [CRUD](http://jsonapi.org/format/#crud)
+- [Filtering](http://jsonapi.org/format/#fetching-filtering)
+- [Sorting](http://jsonapi.org/format/#fetching-sorting)
+- [Pagination](http://jsonapi.org/format/#fetching-pagination)
+- [Resource Relationships](http://jsonapi.org/format/#document-structure-resource-relationships) 
+- [Inclusion of Linked Resources](http://jsonapi.org/format/#fetching-includes)
+- [Sparse fieldsets](http://jsonapi.org/format/#fetching-sparse-fieldsets)
+- [Errors](http://jsonapi.org/format/#errors)
 
-```js
-    // generate additional routes using routes.getById .post .patch .delete
-    server.route(hh.routes.getById(brands))
-    server.route(hh.routes.post(brands))
-    server.route(hh.routes.patch(brands))
-    server.route(hh.routes.delete(brands))
-    
-```
+#### Other  
+
+- Extended filter operators : lt, gt, lte, gte
+- change events through SSE 
+
+
+
