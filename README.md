@@ -10,14 +10,15 @@ a JSONAPI 1.0 plugin for Hapi
 Harvester is a Hapi plugin which enables you to quickly define resources conform to the JSONAPI 1.0 spec in an easy, boilerplate-free manner.  
 
 ```js
-// initialise a hapi server... register the hapi-harvester plugin
+// bootstrap a hapi server... and register the plugin
 server.register({
     register: require('hapi-harvester')
 }, function (err) {
-    // define a jsonapi schema with Joi validation 
+    // define a jsonapi schema 
     var brands = {
         type: 'brands',
         attributes: {
+            // use Joi to set validation constraints
             code: Joi.string(),
             description: Joi.string()
         }
