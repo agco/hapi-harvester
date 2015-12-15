@@ -50,8 +50,7 @@ describe('Plugin Basics', function() {
     it('defaults to a Dockerized Mongodb if an adapter is not provided', function (done) {
 
         server = new Hapi.Server()
-        server.connection({port: 9100})
-
+        server.connection()
         server.register([
             require('../lib/plugin'),
             require('inject-then')
