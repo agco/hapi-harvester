@@ -23,7 +23,7 @@ describe('Adapter Validation', function () {
         function constructAdapter() {
             require('../').getAdapter('nonexistant')
         }
-        expect(constructAdapter).to.throw('Wrong adapter name, see docs for built in adapter')
+        expect(constructAdapter).to.throw(Error)
     })
 
 })
