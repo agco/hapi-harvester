@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "setup": "cd docker && ./start.sh",
-    "test": "mocha test"
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -45,7 +45,10 @@
     "inject-then": "^2.0.2",
     "mocha": "^2.3.3",
     "should": "7.1.1",
-    "vision": "^4.0.1"
+    "vision": "^4.0.1",
+    "istanbul": "^0.3.7",
+    "coveralls": "^2.11.2",
+    "mocha-lcov-reporter": "0.0.2"
   },
   "peerDependencies": {
     "hapi": ">=10.4",
