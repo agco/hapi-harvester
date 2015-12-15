@@ -16,6 +16,7 @@ const schema = {
 };
 
 describe('Plugin Basics', function() {
+
     beforeEach(function(done) {
         buildServer(done);
     })
@@ -67,7 +68,7 @@ describe('Plugin Basics', function() {
     it('performs a fallback to Mongodb on localhost if an adapter is not provided and DOCKER_HOST env variable not set', function (done) {
 
         const dockerHostUrl = process.env.DOCKER_HOST;
-        process.env.DOCKER_HOST = ''
+        process.env.DOCKER_HOST = null
 
         server = new Hapi.Server()
         server.connection()
