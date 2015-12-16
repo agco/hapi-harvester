@@ -7,7 +7,7 @@ a JSONAPI 1.0 plugin for Hapi
 
 ## Overview
 
-Harvester is a Hapi plugin which enables you to quickly define resources conform to the JSONAPI 1.0 spec in an easy, boilerplate-free manner.  
+Harvester is a Hapi plugin which enables you to quickly define [JSONAPI 1.0](http://jsonapi.org) resources in an easy, boilerplate-free manner.  
 
 ```js
 // bootstrap a hapi server... and register the plugin
@@ -46,7 +46,7 @@ server.register({
 #### Other  
 
 - Extended filter operators : lt, gt, lte, gte
-- change events through SSE 
+- Reliable change events capture through SSE 
 
 
 
