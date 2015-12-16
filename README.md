@@ -46,7 +46,7 @@ server.register({
 #### Other  
 
 - Extended filter operators : lt, gt, lte, gte
-- Reliable change events capture and broadcast through [SSE](http://www.w3.org/TR/eventsource/) 
+- Publish change events through [SSE](http://www.w3.org/TR/eventsource/) 
 
 
 
