@@ -2,7 +2,8 @@
 
 const Joi = require('joi')
 const utils = require('./utils');
-const config = require('./config')
+const Hapi = require('hapi');
+const url = require('url');
 
 let server, buildServer, destroyServer;
 
@@ -15,6 +16,7 @@ const schema = {
 };
 
 describe('Plugin Basics', function() {
+
     beforeEach(function(done) {
         buildServer(done);
     })
@@ -45,17 +47,31 @@ describe('Plugin Basics', function() {
             expect(res.headers.allow.split(',').sort()).to.eql('OPTIONS,GET,POST,PATCH,DELETE'.split(',').sort())
         })
     })
+
+    it('performs a fallback if an adapter is not provided', function (done) {
+
+        server = new Hapi.Server()
+        server.connection()
+        server.register([
+            require('../lib/plugin')
+        ], () => {
+            const harvester = server.plugins['hapi-harvester'];
+            server.start(()=> {
+                expect(harvester.adapter.options.mongodbUrl).to.not.be.null
+                expect(harvester.adapter.options.oplogConnectionString).to.not.be.null
+                done()
+            })
+        })
+    })
+
 })
 
 buildServer = function(done) {
-    const Hapi = require('hapi')
-    const plugin = require('../')
-    const adapter = plugin.getAdapter('mongodb')
     server = new Hapi.Server()
-    server.connection({port : 9100})
+    server.connection()
     server.register([
-        {register: require('../'), options: {adapter: adapter({mongodbUrl: config.getMongodbUrl('test'), baseUri: server.info.uri})}},
-        {register: require('inject-then')}
+        require('../'),
+        require('inject-then')
     ], function() {
         server.start(done)
     })
