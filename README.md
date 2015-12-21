@@ -30,7 +30,7 @@ server.register({
 })
 ```
 
-Please visit the hapi-harvesterjs.readme.io website for more docs, including a [getting started](https://hapi-harvesterjs.readme.io/docs/getting-started) guide to get yourself up and running 
+Please visit the [hapi-harvesterjs.readme.io](http://hapi-harvesterjs.readme.io/v1.0) website for more docs, including a [getting started](https://hapi-harvesterjs.readme.io/docs/getting-started) guide to get yourself up and running 
 
 
 ## Features
