@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 var utils = {
     getData: (res) => {
@@ -9,32 +9,45 @@ var utils = {
     },
     removeFromDB: (server, collections) => {
         var promises = _.map(collections, function (item) {
-            const model = server.plugins.harvester.adapter.models[item];
+            const model = server.plugins['hapi-harvester'].adapter.models[item];
             return model.remove({}).lean().exec();
         });
         return Promise.all(promises);
     },
     buildServer: (schemas, options) => {
         options = options || {};
-        let server, hh;
+        let server;
         const Hapi = require('hapi');
         const plugin = require('../');
         const adapter = plugin.getAdapter('mongodb');
         server = new Hapi.Server();
         server.connection({port: options.port || 9100});
         return new Promise((resolve) => {
-            server.register([
-                {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
-                {register: require('inject-then')}
+            server.register([require('../'), require('susie'), require('inject-then')
             ], () => {
-                hh = server.plugins.harvester;
+                let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
-                        ['get', 'getById', 'post', 'patch', 'delete'].forEach(function (verb) {
-                            server.route(hh.routes[verb](schema))
+                        [
+                            'get',
+                            'getById',
+                            'getChangesStreaming',
+                            'post',
+                            'patch',
+                            'delete'
+                        ].forEach(function (verb) {
+                            const route = harvester.routes[verb](schema)
+                            if (_.isArray(route)) {
+                                _.forEach(route, function (route) {
+                                    server.route(route)
+                                });
+                            } else {
+                                server.route(route)
+                            }
                         })
+
                     });
-                    resolve({server, hh})
+                    resolve({server, harvester})
                 })
             })
         });
@@ -42,7 +55,7 @@ var utils = {
     buildDefaultServer: function (schemas) {
         return utils.buildServer(schemas).then(function (res) {
             global.server = res.server;
-            global.hh = res.hh;
+            global.harvester = res.harvester;
             return res.server;
         });
     },

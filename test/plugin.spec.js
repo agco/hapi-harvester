@@ -2,8 +2,10 @@
 
 const Joi = require('joi')
 const utils = require('./utils');
+const Hapi = require('hapi');
+const url = require('url');
 
-let server, buildServer, destroyServer, hh;
+let server, buildServer, destroyServer;
 
 const schema = {
     type: 'brands',
@@ -14,6 +16,7 @@ const schema = {
 };
 
 describe('Plugin Basics', function() {
+
     beforeEach(function(done) {
         buildServer(done);
     })
@@ -23,7 +26,7 @@ describe('Plugin Basics', function() {
     })
 
     it('Attaches the plugin to Hapi server configuration', function() {
-        expect(server.plugins.harvester.version).to.equal('0.1.0')
+        expect(server.plugins['hapi-harvester'].version).to.equal('0.1.0')
     })
 
     it('should have the injectThen method available', function() {
@@ -36,27 +39,40 @@ describe('Plugin Basics', function() {
     it('only sends the available verbs on OPTIONS call', function() {
 
         ['get', 'post', 'patch', 'delete'].forEach(function(verb) {
-            server.route(hh.routes[verb](schema))
+            server.route(server.plugins['hapi-harvester'].routes[verb](schema))
         })
 
         return server.injectThen({method: 'OPTIONS', url: '/brands'})
         .then(function(res) {
-            expect(res.headers.allow).to.equal('OPTIONS,GET,POST,PATCH,DELETE')
+            expect(res.headers.allow.split(',').sort()).to.eql('OPTIONS,GET,POST,PATCH,DELETE'.split(',').sort())
         })
     })
+
+    it('performs a fallback if an adapter is not provided', function (done) {
+
+        server = new Hapi.Server()
+        server.connection()
+        server.register([
+            require('../lib/plugin')
+        ], () => {
+            const harvester = server.plugins['hapi-harvester'];
+            server.start(()=> {
+                expect(harvester.adapter.options.mongodbUrl).to.not.be.null
+                expect(harvester.adapter.options.oplogConnectionString).to.not.be.null
+                done()
+            })
+        })
+    })
+
 })
 
 buildServer = function(done) {
-    const Hapi = require('hapi')
-    const plugin = require('../')
-    const adapter = plugin.getAdapter('mongodb')
     server = new Hapi.Server()
-    server.connection({port : 9100})
+    server.connection()
     server.register([
-        {register: require('../'), options: {adapter: adapter({mongodbUrl: 'mongodb://localhost/test'})}},
-        {register: require('inject-then')}
+        require('../'),
+        require('inject-then')
     ], function() {
-        hh = server.plugins.harvester;
         server.start(done)
     })
 }

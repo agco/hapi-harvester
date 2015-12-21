@@ -10,7 +10,7 @@ describe('remote link', function () {
 
     let server1, server2;
 
-    describe('given 2 resources : \'posts\', \'people\' ; defined on distinct harvesterjs servers ' +
+    describe('given 2 resources : \'posts\', \'people\' ; defined on distinct harvester servers ' +
         'and posts has a remote link \'author\' defined to people', function () {
 
         const app1Port = 8011;
@@ -158,6 +158,26 @@ describe('remote link', function () {
                         expect(response.statusCode).to.equal(200);
                         const body = response.result;
                         expect(_.pluck(body.included, 'id').sort()).to.eql([that.countryId, that.authorId, that.commentId].sort());
+                    });
+            });
+        });
+
+        describe('fetch posts include topic, author, author.country and comments when remote relationship is missing', function () {
+            before(function () {
+                const data = {
+                    type: 'posts',
+                    attributes: {},
+                    relationships: {comments: [{type: 'comments', id: '00000000-0000-4000-b000-000000000000'}]}
+                };
+                return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}}).then(function (result) {
+                    expect(result.statusCode).to.equal(201)
+                })
+            });
+            it('should respond with 500', function () {
+                const that = this;
+                return server1.injectThen({method: 'get', url: '/posts?include=comments'})
+                    .then(function (response) {
+                        expect(response.statusCode).to.equal(500);
                     });
             });
         });
