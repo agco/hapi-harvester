@@ -11,23 +11,32 @@ Harvester is a Hapi plugin which enables you to define [JSONAPI 1.0](http://json
 
 ```js
 // bootstrap a hapi server... and register the plugin
-server.register({
-    register: require('hapi-harvester')
-}, function (err) {
-    // define a jsonapi schema 
-    var brands = {
-        type: 'brands',
-        attributes: {
-            // use Joi to set validation constraints
-            code: Joi.string(),
-            description: Joi.string()
+server.register(
+    [{
+      register: harvester, 
+      options: {
+        adapter: adapter({
+          mongodbUrl: 'mongodb://localhost/test', 
+          oplogConnectionString: 'mongodb://localhost/local'})  
+      }
+    }], () => {
+        // define a jsonapi schema 
+        var brands = {
+            type: 'brands',
+            attributes: {
+                // use Joi to set validation constraints
+                code: Joi.string(),
+                description: Joi.string()
+            }
         }
-    }
-    // retrieve the plugin namespace from the server object
-    const hh = server.plugins['hapi-harvester']
-    // register the routes 
-    const brandsGet = hh.route(brands)
-})
+        
+        const hh = server.plugins['hapi-harvester']
+        // register the routes 
+        hh.route(brands)
+
+        server.start()
+        
+    })
 ```
 
 Please visit [hapi-harvesterjs.readme.io](http://hapi-harvesterjs.readme.io/v1.0) for more docs, including a [getting started](https://hapi-harvesterjs.readme.io/docs/getting-started) guide to get yourself up and running 
