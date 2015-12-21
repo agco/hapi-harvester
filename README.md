@@ -30,6 +30,9 @@ server.register({
 })
 ```
 
+Please visit the hapi-harvesterjs.readme.io website for more docs, including a [getting started](https://hapi-harvesterjs.readme.io/docs/getting-started) guide to get yourself up and running 
+
+
 ## Features
 
 #### JSON-API 1.0 
