@@ -10,7 +10,7 @@ const $http = require('http-as-promised')
 const sse = require('../lib/sse')
 
 
-describe('SSE', function () {
+describe.only('SSE', function () {
 
     describe('Single resource', function () {
 
@@ -51,6 +51,7 @@ describe('SSE', function () {
         describe('When I post to the newly created resource', function () {
             it('Then I should receive a change event with data but not the one before it', function (done) {
                     var eventSource = ess(baseUrl + '/books/changes/streaming', {retry: false})
+                        .on('close', done)
                         .on('data', function (res) {
                             lastEventId = res.id
                             let data = JSON.parse(res.data)
@@ -76,7 +77,6 @@ describe('SSE', function () {
                             }
                             expect(res.event.trim()).to.equal('books_i')
                             expect(_.omit(data, 'id')).to.deep.equal(expectedData)
-                            done()
                             eventSource.destroy()
                         })
                 }
@@ -86,10 +86,10 @@ describe('SSE', function () {
         describe('When I post resource with uppercased characters in name', function () {
             it('Then I should receive a change event', function (done) {
                     var eventSource = ess(baseUrl + '/superHeros/changes/streaming', {retry: false})
+                        .on('close', done)
                         .on('data', function (data) {
                             data = JSON.parse(data.data)
                             expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {timestamp: 123}})
-                            done()
                             eventSource.destroy()
                         })
 
@@ -134,17 +134,23 @@ describe('SSE', function () {
                     retry: false, headers: {
                         'Last-Event-ID': lastEventId
                     }
-                }).on('data', function (data) {
-                    lastEventId = data.id
-                    data = JSON.parse(data.data)
-                    //ignore ticker data
-                    if (_.isNumber(data)) {
-                        return
-                    }
-                    expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {title: 'filtered', author: 'Asimov'}})
-                    done()
-                    eventSource.destroy()
                 })
+                    .on('close', done)
+                    .on('data', function (data) {
+                        lastEventId = data.id
+                        data = JSON.parse(data.data)
+                        //ignore ticker data
+                        if (_.isNumber(data)) {
+                            return
+                        }
+                        expect(_.omit(data, 'id', 'type')).to.deep.equal({
+                            attributes: {
+                                title: 'filtered',
+                                author: 'Asimov'
+                            }
+                        })
+                        eventSource.destroy()
+                    })
             })
         })
 
@@ -164,16 +170,18 @@ describe('SSE', function () {
                     retry: false, headers: {
                         'Last-Event-ID': lastEventId
                     }
-                }).on('data', function (data) {
-                    data = JSON.parse(data.data)
-                    //ignore ticker data
-                    if (_.isNumber(data)) {
-                        return
-                    }
-                    expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {title: 'test title 3'}})
-                    done()
-                    eventSource.destroy()
+
                 })
+                    .on('close', done)
+                    .on('data', function (data) {
+                        data = JSON.parse(data.data)
+                        //ignore ticker data
+                        if (_.isNumber(data)) {
+                            return
+                        }
+                        expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {title: 'test title 3'}})
+                        eventSource.destroy()
+                    })
             })
         })
 
@@ -203,6 +211,7 @@ describe('SSE', function () {
                 ]
 
                 var eventSource = ess(baseUrl + '/books/changes/streaming', {retry: false})
+                    .on('close', done)
                     .on('data', function (data) {
                         lastEventId = data.id
                         data = JSON.parse(data.data)
@@ -218,11 +227,8 @@ describe('SSE', function () {
                         }
 
                         expect(_.omit(data, 'id')).to.deep.equal(payloads[counter].data)
-                        counter++
-                        if (counter === 1) {
-                            done()
-                            eventSource.destroy()
-                        }
+                        eventSource.destroy()
+
                     })
             })
         })
@@ -233,23 +239,24 @@ describe('SSE', function () {
         let lastEventId
         let baseUrl
         const schema = {
-                    bookas: {
-                        type: 'bookas',
-                        attributes: {
-                            name: Joi.string()
-                        }
-                    },
-                    bookbs: {
-                        type: 'bookbs',
-                        attributes: {
-                            name: Joi.string()
-                        }
-                    }
+            bookas: {
+                type: 'bookas',
+                attributes: {
+                    name: Joi.string()
                 }
+            },
+            bookbs: {
+                type: 'bookbs',
+                attributes: {
+                    name: Joi.string()
+                }
+            }
+        }
 
         function sendAndCheckSSE(resources, payloads, done) {
             var index = 0
             var eventSource = ess(baseUrl + '/changes/streaming?resources=' + resources.join(','), {retry: false})
+                .on('close', done)
                 .on('data', function (res) {
                     lastEventId = res.id
                     let data = JSON.parse(res.data)
@@ -264,7 +271,6 @@ describe('SSE', function () {
                     expect(res.event.trim()).to.equal('bookas_i')
                     expect(_.omit(data, 'id')).to.deep.equal(payloads[index][resources[index]][0])
                     if (index === payloads.length - 1) {
-                        done()
                         eventSource.destroy()
                     }
 
@@ -335,7 +341,10 @@ describe('SSE', function () {
 
         describe('Given a list of resources A, B, C AND base URL base_url When a GET is made to base_url/changes/stream?resources=A,D ', function () {
             it('Then a 400 HTTP error code and a JSON API error specifying the invalid resource are returned to the API caller ', function () {
-                return server.injectThen({method: 'get', url: '/changes/streaming?resources=bookas,wrongResource'}).then(function () {
+                return server.injectThen({
+                    method: 'get',
+                    url: '/changes/streaming?resources=bookas,wrongResource'
+                }).then(function () {
                     throw new Error('Expected 400 status code')
                 }).catch(function (error) {
                     expect(error.isBoom).to.be.true
@@ -363,7 +372,11 @@ describe('SSE', function () {
                 const headers = {
                     'Last-Event-ID': '1234567_wrong'
                 }
-                return server.injectThen({method: 'get', url: '/changes/streaming?resources=bookas,bookbs', headers: headers}).then(function () {
+                return server.injectThen({
+                    method: 'get',
+                    url: '/changes/streaming?resources=bookas,bookbs',
+                    headers: headers
+                }).then(function () {
                     throw new Error('Expected 400 status code')
                 }).catch(function (error) {
                     expect(error.isBoom).to.be.true
