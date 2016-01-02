@@ -86,6 +86,13 @@ describe('Related links', () => {
 
     before(function () {
         return utils.buildDefaultServer(schema).then((server) => {
+            server.route({
+                method: 'get',
+                path: '/people/{id}/hello',
+                handler: function (request, reply) {
+                    reply('world');
+                }
+            });
             return seeder(server).dropCollectionsAndSeed(data)
         })
     });
@@ -96,7 +103,7 @@ describe('Related links', () => {
 
         describe('to-one relationship', function () {
             it('should resolve referenced item', function () {
-                return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate'}).then(function (res) {
+                return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/soulmate'}).then(function (res) {
                     expect(res.statusCode).to.equal(200)
                     const body = res.result
                     expect(body.data).to.have.property('id', 'c344d722-b7f9-49dd-9842-f0a375f7dfdc')
@@ -104,7 +111,7 @@ describe('Related links', () => {
             })
             describe('and relation is not defined', function () {
                 it('should resolve null', function () {
-                    return server.injectThen({method: 'get', url: '/people/c344d722-b7f9-49dd-9842-f0a375f7dfdc/relationships/soulmate'}).then(function (res) {
+                    return server.injectThen({method: 'get', url: '/people/c344d722-b7f9-49dd-9842-f0a375f7dfdc/soulmate'}).then(function (res) {
                         expect(res.statusCode).to.equal(200)
                         const body = res.result
                         expect(body.data).to.have.equal(null)
@@ -114,7 +121,7 @@ describe('Related links', () => {
         })
         describe('to-many relationship', function () {
             it('should resolve referenced items', function () {
-                return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/relationships/pets'}).then(function (res) {
+                return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets'}).then(function (res) {
                     expect(res.statusCode).to.equal(200)
                     const body = res.result
                     expect(body.data).to.be.an.Array
@@ -127,12 +134,23 @@ describe('Related links', () => {
             })
             describe('and relation is not defined', function () {
                 it('should resolve empty array', function () {
-                    return server.injectThen({method: 'get', url: '/people/c344d722-b7f9-49dd-9842-f0a375f7dfdc/relationships/pets'}).then(function (res) {
+                    return server.injectThen({method: 'get', url: '/people/c344d722-b7f9-49dd-9842-f0a375f7dfdc/pets'}).then(function (res) {
                         expect(res.statusCode).to.equal(200)
                         const body = res.result
                         expect(body.data).to.be.an.Array
                         expect(body.data).to.have.length(0)
                     })
+                })
+            })
+
+        })
+
+        describe('non relationship url', function () {
+            it('should not be rewritten', function () {
+                return server.injectThen({method: 'get', url: '/people/c344d722-b7f9-49dd-9842-f0a375f7dfdc/hello'}).then(function (res) {
+                    expect(res.statusCode).to.equal(200)
+                    const body = res.result
+                    expect(body).to.equal('world')
                 })
             })
         })
@@ -150,8 +168,7 @@ describe('Related links', () => {
                         const relatedLink = person.relationships.pets[0].links.related;
                         const path = url.parse(relatedLink).path;
                         expect(relatedLink).to.be.a.String;
-                        console.log('RELATED LINK ', relatedLink);
-                        expect(path).to.equal("/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets/c344d722-b7f9-49dd-9842-f0a375f7dfdc");
+                        expect(path).to.equal("/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets");
                     });
             });
         });
