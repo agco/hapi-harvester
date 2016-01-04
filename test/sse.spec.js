@@ -9,8 +9,11 @@ const seeder = require('./seeder')
 const $http = require('http-as-promised')
 const sse = require('../lib/sse')
 
+var Rx = require('rx');
 
-describe.only('SSE', function () {
+const EventSource = require('eventsource');
+
+describe('SSE', function () {
 
     describe('Single resource', function () {
 
@@ -49,51 +52,44 @@ describe.only('SSE', function () {
         after(utils.createDefaultServerDestructor())
 
         describe('When I post to the newly created resource', function () {
-            it('Then I should receive a change event with data but not the one before it', function (done) {
-                    var eventSource = ess(baseUrl + '/books/changes/streaming', {retry: false})
-                        .on('close', done)
-                        .on('data', function (res) {
-                            lastEventId = res.id
-                            let data = JSON.parse(res.data)
-                            //ignore ticker data
-                            if (_.isNumber(data)) {
-                                //post data after we've hooked into change events and receive a ticker
-                                return seeder(server).dropCollectionsAndSeed({
-                                    books: [
-                                        {
-                                            type: 'books',
-                                            attributes: {
-                                                title: 'test title 2'
-                                            }
+            it.only('Then I should receive a change event with data but not the one before it', function (done) {
+
+                    const source = new EventSource(baseUrl + '/books/changes/streaming')
+                    Rx.Observable.fromEvent(source, 'open')
+                        .subscribe(()=> {
+                            seeder(server).dropCollectionsAndSeed({
+                                books: [
+                                    {
+                                        type: 'books',
+                                        attributes: {
+                                            title: 'test title 2'
                                         }
-                                    ]
-                                })
-                            }
-                            const expectedData = {
-                                type: 'books',
-                                attributes: {
-                                    title: 'test title 2'
-                                }
-                            }
-                            expect(res.event.trim()).to.equal('books_i')
-                            expect(_.omit(data, 'id')).to.deep.equal(expectedData)
-                            eventSource.destroy()
+                                    }
+                                ]
+                            })
+                        });
+
+                    Rx.Observable.fromEvent(source, 'books_i')
+                        .filter((e)=> {
+                            return !_.startsWith(e.type, 'ticker')
                         })
+                        .subscribe((e) => {
+                            console.log(JSON.stringify(e))
+                            source.close()
+                            done()
+                        });
+
                 }
             )
+
         })
 
         describe('When I post resource with uppercased characters in name', function () {
             it('Then I should receive a change event', function (done) {
-                    var eventSource = ess(baseUrl + '/superHeros/changes/streaming', {retry: false})
-                        .on('close', done)
-                        .on('data', function (data) {
-                            data = JSON.parse(data.data)
-                            expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {timestamp: 123}})
-                            eventSource.destroy()
-                        })
 
-                    Promise.delay(100).then(function () {
+                const source = new EventSource(baseUrl + '/superHeros/changes/streaming')
+                Rx.Observable.fromEvent(source, 'open')
+                    .subscribe(()=> {
                         seeder(server).dropCollectionsAndSeed({
                             superHeros: [
                                 {
@@ -104,7 +100,19 @@ describe.only('SSE', function () {
                                 }
                             ]
                         })
+                    });
+
+                Rx.Observable.fromEvent(source, 'superheros_i')
+                    .filter((e)=> {
+                        return !_.startsWith(e.type, 'ticker')
                     })
+                    .subscribe((e) => {
+                        const data = JSON.parse(e.data)
+                        expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {timestamp: 123}})
+                        source.close()
+                        done()
+                    });
+
                 }
             )
         })
