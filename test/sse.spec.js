@@ -2,7 +2,6 @@
 
 const _ = require('lodash')
 const Promise = require('bluebird')
-var ess = require('agco-event-source-stream')
 const Joi = require('joi')
 const utils = require('./utils')
 const seeder = require('./seeder')
@@ -293,11 +292,7 @@ describe('SSE', function () {
             const source = new EventSource(baseUrl + '/changes/streaming?resources=' + resources.join(','))
             Rx.Observable.fromEvent(source, 'open')
                 .subscribe(()=> {
-                    console.log('before seed')
                     return seeder(server).dropCollectionsAndSeed(payloads)
-                        .then(()=> {
-                            console.log('seeded')
-                        })
                 })
 
 
@@ -308,11 +303,18 @@ describe('SSE', function () {
                 .flatten()
                 .value()
 
-            Rx.Observable.fromEvent(source, `bookas_i`)
+            const subject = new Rx.Subject();
+
+            _.each(resources, (resource)=> {
+                Rx.Observable.fromEvent(source, `${resource}_i`)
+                    .subscribe(subject)
+            })
+
+            subject
                 .filter((e)=> {
                     return !_.startsWith(e.type, 'ticker')
                 })
-                .bufferWithCount(1)
+                .bufferWithCount(shouldBeResult.length)
                 .subscribe((events) => {
                     const data = _.map(events, (event) => {
                         return _.omit(JSON.parse(event.data), 'id')
@@ -340,7 +342,7 @@ describe('SSE', function () {
 
         after(utils.createDefaultServerDestructor())
 
-        describe.only('Given a resources A AND base URL base_url When a GET is made to base_url/changes/streaming?resources=A', function () {
+        describe('Given a resources A AND base URL base_url When a GET is made to base_url/changes/streaming?resources=A', function () {
             it('Then all events for resource A streamed back to the API caller ', function (done) {
                 this.timeout(10000000)
                 var payloads =
@@ -360,7 +362,7 @@ describe('SSE', function () {
 
         describe('Given a list of resources A, B, C AND base URL base_url When a GET is made to base_url/changes/stream?resources=A,B,C ', function () {
             it('Then all events for resources A, B and C are streamed back to the API caller ', function (done) {
-                var payloads = [{
+                var payloads = {
                     bookas: [
                         {
                             type: 'bookas',
@@ -368,18 +370,16 @@ describe('SSE', function () {
                                 name: 'test name 1'
                             }
                         }
-                    ]
-                },
-                    {
-                        bookbs: [
-                            {
-                                type: 'bookbs',
-                                attributes: {
-                                    name: 'test name 2'
-                                }
+                    ],
+                    bookbs: [
+                        {
+                            type: 'bookbs',
+                            attributes: {
+                                name: 'test name 2'
                             }
-                        ]
-                    }]
+                        }
+                    ]
+                }
                 sendAndCheckSSE(['bookas', 'bookbs'], payloads, done)
             })
         })
