@@ -164,7 +164,6 @@ describe('SSE', function () {
         describe('when I ask for events with last-event-id set', function () {
             it('I should get the relevant events', function (done) {
 
-                this.timeout(500000)
                 var randomId = _.random(1, Number.MAX_VALUE);
 
                 const source = new EventSource(baseUrl + '/books/changes/streaming')
@@ -226,7 +225,6 @@ describe('SSE', function () {
             it('Then an SSE is broadcast with event set to x_update, ID set to the oplog timestamp' +
                 'and data set to an instance of x that only contains the new value for property y', function (done) {
 
-                this.timeout(500000)
                 const source = new EventSource(baseUrl + '/books/changes/streaming')
 
                 var payloads = [
@@ -291,27 +289,37 @@ describe('SSE', function () {
         }
 
         function sendAndCheckSSE(resources, payloads, done) {
-            var index = 0
-            var eventSource = ess(baseUrl + '/changes/streaming?resources=' + resources.join(','), {retry: false})
-                .on('close', done)
-                .on('data', function (res) {
-                    lastEventId = res.id
-                    let data = JSON.parse(res.data)
-                    //ignore ticker data
-                    if (_.isNumber(data)) {
-                        //post data after we've hooked into change events and receive a ticker
-                        return Promise.map(payloads, function (payload) {
-                            return seeder(server).seed(payload)
-                        }, {concurrency: 1})
-                    }
 
-                    expect(res.event.trim()).to.equal('bookas_i')
-                    expect(_.omit(data, 'id')).to.deep.equal(payloads[index][resources[index]][0])
-                    if (index === payloads.length - 1) {
-                        eventSource.destroy()
-                    }
+            const source = new EventSource(baseUrl + '/changes/streaming?resources=' + resources.join(','))
+            Rx.Observable.fromEvent(source, 'open')
+                .subscribe(()=> {
+                    console.log('before seed')
+                    return seeder(server).dropCollectionsAndSeed(payloads)
+                        .then(()=> {
+                            console.log('seeded')
+                        })
+                })
 
-                    index++
+
+            const shouldBeResult = _.chain(resources)
+                .map((resource)=> {
+                    return _.get(payloads, resource)
+                })
+                .flatten()
+                .value()
+
+            Rx.Observable.fromEvent(source, `bookas_i`)
+                .filter((e)=> {
+                    return !_.startsWith(e.type, 'ticker')
+                })
+                .bufferWithCount(1)
+                .subscribe((events) => {
+                    const data = _.map(events, (event) => {
+                        return _.omit(JSON.parse(event.data), 'id')
+                    })
+                    expect(data).to.deep.equal(shouldBeResult)
+                    source.close()
+                    done()
                 })
         }
 
@@ -332,20 +340,20 @@ describe('SSE', function () {
 
         after(utils.createDefaultServerDestructor())
 
-        describe('Given a resources A AND base URL base_url When a GET is made to base_url/changes/streaming?resources=A', function () {
+        describe.only('Given a resources A AND base URL base_url When a GET is made to base_url/changes/streaming?resources=A', function () {
             it('Then all events for resource A streamed back to the API caller ', function (done) {
-                var payloads = [
-                    {
-                        bookas: [
-                            {
-                                type: 'bookas',
-                                attributes: {
-                                    name: 'test name 1'
-                                }
+                this.timeout(10000000)
+                var payloads =
+                {
+                    bookas: [
+                        {
+                            type: 'bookas',
+                            attributes: {
+                                name: 'test name 1'
                             }
-                        ]
-                    }
-                ]
+                        }
+                    ]
+                }
                 sendAndCheckSSE(['bookas'], payloads, done)
             })
         })
