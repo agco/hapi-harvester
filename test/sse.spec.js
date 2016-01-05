@@ -39,20 +39,18 @@ describe('SSE', function () {
             }
         }
 
-        let baseUrl
-        let lastEventId
+        const baseUrl = 'http://localhost:9100'
 
         this.timeout(5000)
 
         before(function () {
-            baseUrl = 'http://localhost:9100'
             return utils.buildDefaultServer(schema)
         })
 
         after(utils.createDefaultServerDestructor())
 
         describe('When I post to the newly created resource', function () {
-            it.only('Then I should receive a change event with data but not the one before it', function (done) {
+            it('Then I should receive a change event with data but not the one before it', function (done) {
 
                     const source = new EventSource(baseUrl + '/books/changes/streaming')
                     Rx.Observable.fromEvent(source, 'open')
@@ -74,7 +72,6 @@ describe('SSE', function () {
                             return !_.startsWith(e.type, 'ticker')
                         })
                         .subscribe((e) => {
-                            console.log(JSON.stringify(e))
                             source.close()
                             done()
                         });
@@ -87,116 +84,150 @@ describe('SSE', function () {
         describe('When I post resource with uppercased characters in name', function () {
             it('Then I should receive a change event', function (done) {
 
-                const source = new EventSource(baseUrl + '/superHeros/changes/streaming')
+                    const source = new EventSource(baseUrl + '/superHeros/changes/streaming')
+                    Rx.Observable.fromEvent(source, 'open')
+                        .subscribe(()=> {
+                            seeder(server).dropCollectionsAndSeed({
+                                superHeros: [
+                                    {
+                                        type: 'superHeros',
+                                        attributes: {
+                                            timestamp: 123
+                                        }
+                                    }
+                                ]
+                            })
+                        });
+
+                    Rx.Observable.fromEvent(source, 'superHeros_i')
+                        .filter((e)=> {
+                            return !_.startsWith(e.type, 'ticker')
+                        })
+                        .subscribe((e) => {
+                            const data = JSON.parse(e.data)
+                            expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {timestamp: 123}})
+                            source.close()
+                            done()
+                        });
+
+                }
+            )
+        })
+
+        describe('when I ask for events with filters enabled', function () {
+            it('I should get the relevant event', function (done) {
+
+                const source = new EventSource(baseUrl +
+                    '/books/changes/streaming?attributes.title=filtered&attributes.author=Asimov')
+
                 Rx.Observable.fromEvent(source, 'open')
                     .subscribe(()=> {
                         seeder(server).dropCollectionsAndSeed({
-                            superHeros: [
+                            books: [
                                 {
-                                    type: 'superHeros',
+                                    type: 'books',
+                                    attributes: {title: 'test title 3'}
+                                },
+                                {
+                                    type: 'books',
+                                    attributes: {title: 'filtered'}
+                                },
+                                {
+                                    type: 'books',
                                     attributes: {
-                                        timestamp: 123
+                                        title: 'filtered',
+                                        author: 'Asimov'
                                     }
                                 }
                             ]
                         })
                     });
 
-                Rx.Observable.fromEvent(source, 'superheros_i')
+                Rx.Observable.fromEvent(source, 'books_i')
                     .filter((e)=> {
                         return !_.startsWith(e.type, 'ticker')
                     })
                     .subscribe((e) => {
                         const data = JSON.parse(e.data)
-                        expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {timestamp: 123}})
-                        source.close()
-                        done()
-                    });
-
-                }
-            )
-        })
-
-        describe('when I ask for events with ids greater than a certain id with filters enabled', function () {
-            it('I should get only one event without setting a limit', function (done) {
-                seeder(server).dropCollectionsAndSeed({
-                    books: [
-                        {
-                            type: 'books',
-                            attributes: {title: 'test title 3'}
-                        },
-                        {
-                            type: 'books',
-                            attributes: {title: 'filtered'}
-                        },
-                        {
-                            type: 'books',
-                            attributes: {
-                                title: 'filtered',
-                                author: 'Asimov'
-                            }
-                        }
-                    ]
-                })
-                var eventSource = ess(baseUrl + '/books/changes/streaming?attributes.title=filtered&attributes.author=Asimov&limit=100', {
-                    retry: false, headers: {
-                        'Last-Event-ID': lastEventId
-                    }
-                })
-                    .on('close', done)
-                    .on('data', function (data) {
-                        lastEventId = data.id
-                        data = JSON.parse(data.data)
-                        //ignore ticker data
-                        if (_.isNumber(data)) {
-                            return
-                        }
                         expect(_.omit(data, 'id', 'type')).to.deep.equal({
                             attributes: {
                                 title: 'filtered',
                                 author: 'Asimov'
                             }
                         })
-                        eventSource.destroy()
+                        source.close()
+                        done()
                     })
             })
         })
 
-        describe('when I ask for events with ids greater than a certain id', function () {
-            it('I should get only one event without setting a limit', function (done) {
-                seeder(server).dropCollectionsAndSeed({
-                    books: [
-                        {
-                            type: 'books',
-                            attributes: {
-                                title: 'test title 3'
-                            }
-                        }
-                    ]
-                })
-                var eventSource = ess(baseUrl + '/books/changes/streaming', {
-                    retry: false, headers: {
-                        'Last-Event-ID': lastEventId
-                    }
+        describe('when I ask for events with last-event-id set', function () {
+            it('I should get the relevant events', function (done) {
 
-                })
-                    .on('close', done)
-                    .on('data', function (data) {
-                        data = JSON.parse(data.data)
-                        //ignore ticker data
-                        if (_.isNumber(data)) {
-                            return
-                        }
-                        expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {title: 'test title 3'}})
-                        eventSource.destroy()
+                this.timeout(500000)
+                var randomId = _.random(1, Number.MAX_VALUE);
+
+                const source = new EventSource(baseUrl + '/books/changes/streaming')
+
+                Rx.Observable.fromEvent(source, 'open')
+                    .subscribe(()=> {
+                        seeder(server).dropCollectionsAndSeed({
+                            books: [
+                                {
+                                    type: 'books',
+                                    attributes: {
+                                        title: `title ${randomId}`
+                                    }
+                                }
+                            ]
+                        })
+                    });
+
+                const lastEventIdStream = Rx.Observable.fromEvent(source, 'books_i')
+                    .filter((e)=> {
+                        return !_.startsWith(e.type, 'ticker')
                     })
+                    .take(1)
+                    .map((e) => {
+                        return e.lastEventId
+                    })
+
+                lastEventIdStream
+                    .subscribe((lastEventId) => {
+
+                        const newSource = new EventSource(baseUrl + '/books/changes/streaming', {
+                            headers: {
+                                'Last-Event-ID': calcPreviousId()
+                            }
+                        })
+
+                        function calcPreviousId() {
+                            return lastEventId.substring(0, 11) + (Number.parseInt(lastEventId.substring(11)) - 1)
+                        }
+
+                        Rx.Observable.fromEvent(newSource, 'books_i')
+                            .filter((e)=> {
+                                return !_.startsWith(e.type, 'ticker')
+                            })
+                            .subscribe((e) => {
+                                const data = JSON.parse(e.data)
+                                expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {title: `title ${randomId}`}})
+                                newSource.close()
+                                source.close()
+                                done()
+                            })
+
+                    })
+
             })
         })
 
         describe('Given a resource x with property y When the value of y changes', function () {
             it('Then an SSE is broadcast with event set to x_update, ID set to the oplog timestamp' +
                 'and data set to an instance of x that only contains the new value for property y', function (done) {
-                var counter = 0
+
+                this.timeout(500000)
+                const source = new EventSource(baseUrl + '/books/changes/streaming')
 
                 var payloads = [
                     {
@@ -218,25 +249,23 @@ describe('SSE', function () {
                     }
                 ]
 
-                var eventSource = ess(baseUrl + '/books/changes/streaming', {retry: false})
-                    .on('close', done)
-                    .on('data', function (data) {
-                        lastEventId = data.id
-                        data = JSON.parse(data.data)
+                Rx.Observable.fromEvent(source, 'open')
+                    .subscribe(()=> {
+                        return $http.post(baseUrl + '/books', {json: payloads[0]})
+                            .spread(function (res) {
+                                return $http.patch(baseUrl + '/books/' + res.body.data.id, {json: payloads[1]})
+                            })
+                    });
 
-                        //ignore ticker data
-                        if (_.isNumber(data)) {
-                            //post data after we've hooked into change events and receive a ticker
-                            return $http.post(baseUrl + '/books', {json: payloads[0]})
-                                .spread(function (res) {
-                                    //TODO in harvesterjs this was PUT instead of PATCH
-                                    return $http.patch(baseUrl + '/books/' + res.body.data.id, {json: payloads[1]})
-                                })
-                        }
-
-                        expect(_.omit(data, 'id')).to.deep.equal(payloads[counter].data)
-                        eventSource.destroy()
-
+                Rx.Observable.fromEvent(source, 'books_u')
+                    .filter((e)=> {
+                        return !_.startsWith(e.type, 'ticker')
+                    })
+                    .subscribe((e) => {
+                        const data = JSON.parse(e.data)
+                        expect(_.omit(payloads[1].data, 'id', 'type')).to.deep.equal(data)
+                        source.close()
+                        done()
                     })
             })
         })
