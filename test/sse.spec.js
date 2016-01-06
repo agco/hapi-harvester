@@ -67,9 +67,6 @@ describe('SSE', function () {
                         });
 
                     Rx.Observable.fromEvent(source, 'books_i')
-                        .filter((e)=> {
-                            return !_.startsWith(e.type, 'ticker')
-                        })
                         .subscribe((e) => {
                             source.close()
                             done()
@@ -99,9 +96,6 @@ describe('SSE', function () {
                         });
 
                     Rx.Observable.fromEvent(source, 'superHeros_i')
-                        .filter((e)=> {
-                            return !_.startsWith(e.type, 'ticker')
-                        })
                         .subscribe((e) => {
                             const data = JSON.parse(e.data)
                             expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {timestamp: 123}})
@@ -143,9 +137,6 @@ describe('SSE', function () {
                     });
 
                 Rx.Observable.fromEvent(source, 'books_i')
-                    .filter((e)=> {
-                        return !_.startsWith(e.type, 'ticker')
-                    })
                     .subscribe((e) => {
                         const data = JSON.parse(e.data)
                         expect(_.omit(data, 'id', 'type')).to.deep.equal({
@@ -182,9 +173,6 @@ describe('SSE', function () {
                     });
 
                 const lastEventIdStream = Rx.Observable.fromEvent(source, 'books_i')
-                    .filter((e)=> {
-                        return !_.startsWith(e.type, 'ticker')
-                    })
                     .take(1)
                     .map((e) => {
                         return e.lastEventId
@@ -204,9 +192,6 @@ describe('SSE', function () {
                         }
 
                         Rx.Observable.fromEvent(newSource, 'books_i')
-                            .filter((e)=> {
-                                return !_.startsWith(e.type, 'ticker')
-                            })
                             .subscribe((e) => {
                                 const data = JSON.parse(e.data)
                                 expect(_.omit(data, 'id', 'type')).to.deep.equal({attributes: {title: `title ${randomId}`}})
@@ -255,9 +240,6 @@ describe('SSE', function () {
                     });
 
                 Rx.Observable.fromEvent(source, 'books_u')
-                    .filter((e)=> {
-                        return !_.startsWith(e.type, 'ticker')
-                    })
                     .subscribe((e) => {
                         const data = JSON.parse(e.data)
                         expect(_.omit(payloads[1].data, 'id', 'type')).to.deep.equal(data)
@@ -365,9 +347,6 @@ describe('SSE', function () {
             })
 
             subject
-                .filter((e)=> {
-                    return !_.startsWith(e.type, 'ticker')
-                })
                 .bufferWithCount(shouldBeResult.length)
                 .subscribe((events) => {
                     const data = _.map(events, (event) => {
