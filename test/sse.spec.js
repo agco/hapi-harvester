@@ -266,6 +266,60 @@ describe('SSE', function () {
                     })
             })
         })
+
+        describe('When I start 10 eventSources and seed 1 book', function () {
+            it('Then all of the eventSources should receive the same book_i change event', function (done) {
+
+                    const subject = new Rx.Subject()
+                    const numberOfSources = 30
+
+                    var eventSources = _.map(_.range(numberOfSources), ()=> {
+                        const defer = Promise.defer()
+                        const source = new EventSource(baseUrl + '/books/changes/streaming')
+
+                        var eventStream = Rx.Observable.fromEvent(source, 'books_i')
+                            .subscribe(subject)
+
+                        Rx.Observable.fromEvent(source, 'open')
+                            .do(()=> {
+                                defer.resolve(source)
+                            })
+                            .subscribe(subject)
+                        return defer.promise
+                    });
+
+                    Promise.all(eventSources)
+                        .then((sources)=> {
+
+                            subject
+                                .bufferWithCount(numberOfSources)
+                                .subscribe((events) => {
+                                    expect(events).to.have.length.of(numberOfSources)
+                                    _.each(events, (event)=> {
+                                        expect(_.omit(JSON.parse(event.data), 'id')).to.deep.equal(book)
+                                    })
+                                    _.map(sources, (source)=> {
+                                        source.close()
+                                    })
+                                    done()
+                                });
+
+                            const book = {
+                                type: 'books',
+                                attributes: {
+                                    title: 'test title 2'
+                                }
+                            };
+                            seeder(server).dropCollectionsAndSeed({
+                                books: [
+                                    book
+                                ]
+                            })
+                        })
+                }
+            )
+
+        })
     })
 
     describe('Multi resource', function () {
