@@ -267,11 +267,11 @@ describe('SSE', function () {
             })
         })
 
-        describe('When I start 10 eventSources and seed 1 book', function () {
+        const numberOfSources = 30
+        describe(`When I start ${numberOfSources} eventSources and seed 1 book`, function () {
             it('Then all of the eventSources should receive the same book_i change event', function (done) {
 
                     const subject = new Rx.Subject()
-                    const numberOfSources = 30
 
                     var eventSources = _.map(_.range(numberOfSources), ()=> {
                         const defer = Promise.defer()
