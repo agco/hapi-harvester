@@ -54,7 +54,7 @@
     "vision": "^4.0.1"
   },
   "peerDependencies": {
-    "hapi": ">=10.4",
+    "hapi": ">=10.4 <12",
     "joi": ">=6.9"
   }
 }
