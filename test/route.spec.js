@@ -100,7 +100,7 @@ describe('Route syntax sugar', function () {
         })
     })
 
-    it.only('should register all routes for a schema with options merged', function () {
+    it('should register all routes for a schema with options merged', function () {
         _.chain(harvester.routes.all(schema.brands))
             .map((route) => {
                 return _.merge(route, {
