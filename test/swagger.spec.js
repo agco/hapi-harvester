@@ -148,38 +148,43 @@ describe('Swagger docs', function () {
                     type: 'object',
                     properties: {
                         id: {
-                            type: 'string',
-                            defaultValue: null,
+                            type: 'any',
+                            defaultValue: undefined,
                             description: undefined,
                             notes: undefined,
+                            required: false,
                             tags: undefined
                         },
                         name: {
-                            type: 'string',
-                            defaultValue: null,
+                            type: 'any',
+                            defaultValue: undefined,
                             description: undefined,
                             notes: undefined,
+                            required: false,
                             tags: undefined
                         },
                         appearances: {
-                            type: 'string',
-                            defaultValue: null,
+                            type: 'any',
+                            defaultValue: undefined,
                             description: undefined,
                             notes: undefined,
+                            required: false,
                             tags: undefined
                         },
                         pets: {
-                            type: 'string',
-                            defaultValue: null,
+                            type: 'any',
+                            defaultValue: undefined,
                             description: undefined,
                             notes: undefined,
+                            required: false,
                             tags: undefined
                         },
                         soulmate: {
-                            type: 'string',
-                            defaultValue: null,
+                            type: 'any',
+                            defaultValue: undefined,
                             description: undefined,
                             notes: undefined,
+                            required: false,
                             tags: undefined
                         }
                     }
