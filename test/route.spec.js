@@ -25,7 +25,8 @@ describe('Route syntax sugar', function () {
     afterEach(utils.createDefaultServerDestructor())
 
     it('should register all routes for a schema', function () {
-        harvester.route(schema.brands)
+
+        _.map(harvester.routes.all(schema.brands), (route) => server.route(route))
         assertRoutes([
             ['get', '/brands'],
             ['get', '/brands/{id}'],
@@ -39,7 +40,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register readonly routes for a schema', function () {
-        harvester.route(schema.brands, 'readonly')
+        _.map(harvester.routes.readonly(schema.brands), (route) => server.route(route))
 
         assertRoutes([
             ['get', '/brands'],
@@ -60,7 +61,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register immutable routes for a schema', function () {
-        harvester.route(schema.brands, 'immutable')
+        _.map(harvester.routes.immutable(schema.brands), (route) => server.route(route))
 
         assertRoutes([
             ['get', '/brands'],
@@ -80,7 +81,7 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register specific routes for a schema', function () {
-        harvester.route(schema.brands, ['get', 'getById'])
+        _.map(harvester.routes.pick(schema.brands, ['get', 'getById']), (route) => server.route(route))
 
         assertRoutes([
             ['get', '/brands'],
@@ -100,11 +101,18 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register all routes for a schema with options merged', function () {
-        harvester.route(schema.brands, {
-            config: {
-                tags: ['mytag']
-            }
-        })
+        _.chain(harvester.routes.all(schema.brands))
+            .map((route) => {
+                return _.merge(route, {
+                    config: {
+                        tags: ['mytag']
+                    }
+                })
+            })
+            .map((route) =>
+                server.route(route)
+            )
+            .value()
 
         assertRoutes([
             ['get', '/brands'],
@@ -120,11 +128,18 @@ describe('Route syntax sugar', function () {
     })
 
     it('should register readonly routes for a schema with options merged only for those routes', function () {
-        harvester.route(schema.brands, 'readonly', {
-            config: {
-                tags: ['mytag']
-            }
-        })
+        _.chain(harvester.routes.readonly(schema.brands))
+            .map((route) => {
+                return _.merge(route, {
+                    config: {
+                        tags: ['mytag']
+                    }
+                })
+            })
+            .map((route) =>
+                server.route(route)
+            )
+            .value()
 
         assertRoutes([
             ['get', '/brands'],
@@ -141,34 +156,6 @@ describe('Route syntax sugar', function () {
         ], (route)=> {
             expect(route).to.be.undefined
         })
-
-    })
-
-    it('should throw an error when the schema parameter is missing', function () {
-
-        function createBrandsRoute() {
-            harvester.route()
-        }
-        expect(createBrandsRoute).to.throw(Error);
-
-    })
-
-    it('should throw an error when the second parameter is not a string/array of routeLabels ' +
-        'or a plain object representing the options ', function () {
-
-        function createBrandsRoute() {
-            harvester.route(schema.brands, ()=>{})
-        }
-        expect(createBrandsRoute).to.throw(Error);
-
-    })
-
-    it('should throw an error when the third parameter a plain object representing the options ', function () {
-
-        function createBrandsRoute() {
-            harvester.route(schema.brands, 'get', ()=>{})
-        }
-        expect(createBrandsRoute).to.throw(Error);
 
     })
 
