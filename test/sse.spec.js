@@ -249,7 +249,7 @@ describe('SSE', function () {
             })
         })
 
-         const numberOfSources = 2
+        const numberOfSources = 30
         describe(`When I start ${numberOfSources} eventSources and seed 1 book`, function () {
             it('Then all of the eventSources should receive the same book_i change event', function (done) {
 
