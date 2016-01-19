@@ -54,10 +54,11 @@ describe('Plugin Basics', function () {
         function bootstrapWithoutAdapter() {
             server = new Hapi.Server()
             server.connection()
+            const harvester = require('../lib/plugin')
             server.register([{
-                register: require('../lib/plugin'),
+                register: harvester,
                 options: {
-                    adapterSSE: require('../lib/adapters/mongodb/sse')(config.mongodbOplogUrl)
+                    adapterSSE: harvester.getAdapter('mongodb/sse')(config.mongodbOplogUrl)
                 }
             }], ()=>{})
         }
@@ -71,10 +72,11 @@ describe('Plugin Basics', function () {
         function bootstrapWithoutAdapter() {
             server = new Hapi.Server()
             server.connection()
+            const harvester = require('../lib/plugin')
             server.register([{
-                register: require('../lib/plugin'),
+                register: harvester,
                 options: {
-                    adapter: require('../lib/adapters/mongodb')(config.mongodbUrl)
+                    adapter: harvester.getAdapter('mongodb')(config.mongodbUrl)
                 }
             }], ()=>{})
         }
@@ -90,8 +92,8 @@ buildServer = function (done) {
     server.connection()
 
     const harvester = require('../')
-    const mongodbAdapter = require('../lib/adapters/mongodb')
-    const mongodbSSEAdapter = require('../lib/adapters/mongodb/sse')
+    const mongodbAdapter = harvester.getAdapter('mongodb')
+    const mongodbSSEAdapter = harvester.getAdapter('mongodb/sse')
 
     server.register([
         {

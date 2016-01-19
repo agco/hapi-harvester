@@ -21,8 +21,8 @@ var utils = {
         const Hapi = require('hapi');
 
         const harvester = require('../');
-        const mongodbAdapter = require('../lib/adapters/mongodb')
-        const mongodbSSEAdapter = require('../lib/adapters/mongodb/sse')
+        const mongodbAdapter = harvester.getAdapter('mongodb')
+        const mongodbSSEAdapter = harvester.getAdapter('mongodb/sse')
 
         server = new Hapi.Server();
         server.connection({port: options.port || 9100});

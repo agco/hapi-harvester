@@ -7,8 +7,9 @@ const config = require('./config');
 
 describe('Adapter Validation', function () {
 
-    const mongodbAdapter = require('../lib/adapters/mongodb')
-    const mongodbSSEAdapter = require('../lib/adapters/mongodb/sse')
+    const harvester = require('../')
+    const mongodbAdapter = harvester.getAdapter('mongodb')
+    const mongodbSSEAdapter = harvester.getAdapter('mongodb/sse')
 
     it('Will succeed if passed a valid adapter ', function () {
 
@@ -26,6 +27,13 @@ describe('Adapter Validation', function () {
             adapter,
             mongodbSSEAdapter(config.mongodbOplogUrl)
         )).to.throw('Adapter validation failed. Adapter missing delete')
+    })
+
+    it('Will won\'t accept a string adapter if it doesn\'t exist ', function () {
+        function constructAdapter() {
+            harvester.getAdapter('nonexistant')
+        }
+        expect(constructAdapter).to.throw(Error)
     })
 
 })

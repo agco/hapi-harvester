@@ -33,10 +33,10 @@ describe('Swagger docs', function () {
         return new Promise(function (resolve) {
             let server
             const Hapi = require('hapi')
-            const plugin = require('../')
+            const harvester = require('../')
 
-            const mongodbAdapter = require('../lib/adapters/mongodb')
-            const mongodbSSEAdapter = require('../lib/adapters/mongodb/sse')
+            const mongodbAdapter = harvester.getAdapter('mongodb')
+            const mongodbSSEAdapter = harvester.getAdapter('mongodb/sse')
 
             server = new Hapi.Server()
             server.connection({port: 9100})
