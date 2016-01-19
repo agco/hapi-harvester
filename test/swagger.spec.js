@@ -33,11 +33,20 @@ describe('Swagger docs', function () {
             let server
             const Hapi = require('hapi')
             const plugin = require('../')
-            const adapter = plugin.getAdapter('mongodb')
+
+            const mongodbAdapter = require('../lib/adapters/mongodb')
+            const mongodbSSEAdapter = require('../lib/adapters/mongodb/sse')
+
             server = new Hapi.Server()
             server.connection({port: 9100})
             server.register([
-                require('../'),
+                {
+                    register: require('../'),
+                    options: {
+                        adapter: mongodbAdapter('mongodb://192.168.59.103/test'),
+                        adapterSSE: mongodbSSEAdapter('mongodb://192.168.59.103/local')
+                    }
+                },
                 require('susie'),
                 require('inject-then'),
                 require('inert'),
