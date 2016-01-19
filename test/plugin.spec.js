@@ -4,6 +4,7 @@ const Joi = require('joi')
 const utils = require('./utils');
 const Hapi = require('hapi');
 const url = require('url');
+const config = require('./config');
 
 let server, buildServer, destroyServer;
 
@@ -56,7 +57,7 @@ describe('Plugin Basics', function () {
             server.register([{
                 register: require('../lib/plugin'),
                 options: {
-                    adapterSSE: require('../lib/adapters/mongodb/sse')('mongodb://192.168.59.103/local')
+                    adapterSSE: require('../lib/adapters/mongodb/sse')(config.mongodbOplogUrl)
                 }
             }], ()=>{})
         }
@@ -73,7 +74,7 @@ describe('Plugin Basics', function () {
             server.register([{
                 register: require('../lib/plugin'),
                 options: {
-                    adapter: require('../lib/adapters/mongodb')('mongodb://192.168.59.103/test')
+                    adapter: require('../lib/adapters/mongodb')(config.mongodbUrl)
                 }
             }], ()=>{})
         }
@@ -96,8 +97,8 @@ buildServer = function (done) {
         {
             register: harvester,
             options: {
-                adapter: mongodbAdapter('mongodb://192.168.59.103/test'),
-                adapterSSE: mongodbSSEAdapter('mongodb://192.168.59.103/local')
+                adapter: mongodbAdapter(config.mongodbUrl),
+                adapterSSE: mongodbSSEAdapter(config.mongodbOplogUrl)
             }
         },
         require('inject-then')

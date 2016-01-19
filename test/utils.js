@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('./config');
 
 var utils = {
     getData: (res) => {
@@ -29,8 +30,8 @@ var utils = {
             server.register([{
                 register: harvester,
                 options: {
-                    adapter: mongodbAdapter('mongodb://192.168.59.103/test'),
-                    adapterSSE: mongodbSSEAdapter('mongodb://192.168.59.103/local')
+                    adapter: mongodbAdapter(config.mongodbUrl),
+                    adapterSSE: mongodbSSEAdapter(config.mongodbOplogUrl)
                 }
             }, require('susie'), require('inject-then')
             ], () => {

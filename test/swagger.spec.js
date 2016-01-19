@@ -2,6 +2,7 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
+const config = require('./config')
 
 describe('Swagger docs', function () {
 
@@ -43,8 +44,8 @@ describe('Swagger docs', function () {
                 {
                     register: require('../'),
                     options: {
-                        adapter: mongodbAdapter('mongodb://192.168.59.103/test'),
-                        adapterSSE: mongodbSSEAdapter('mongodb://192.168.59.103/local')
+                        adapter: mongodbAdapter(config.mongodbUrl),
+                        adapterSSE: mongodbSSEAdapter(config.mongodbOplogUrl)
                     }
                 },
                 require('susie'),

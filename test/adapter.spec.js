@@ -3,6 +3,7 @@
 const _ = require('lodash')
 const Hapi = require('hapi')
 const utils = require('./utils');
+const config = require('./config');
 
 describe('Adapter Validation', function () {
 
@@ -12,18 +13,18 @@ describe('Adapter Validation', function () {
     it('Will succeed if passed a valid adapter ', function () {
 
         expect(buildServerSetupWithAdapters(
-                mongodbAdapter('mongodb://192.168.59.103/test'),
-                mongodbSSEAdapter('mongodb://192.168.59.103/local')
+                mongodbAdapter(config.mongodbUrl),
+                mongodbSSEAdapter(config.mongodbOplogUrl)
             )).to.not.throw(Error)
     })
 
     it('Will fail if the given adapter is missing a required function', function () {
 
-        let adapter = mongodbAdapter('mongodb://192.168.59.103/test')
+        let adapter = mongodbAdapter(config.mongodbUrl)
         adapter = _.omit(adapter, 'delete');
         expect(buildServerSetupWithAdapters(
             adapter,
-            mongodbSSEAdapter('mongodb://192.168.59.103/local')
+            mongodbSSEAdapter(config.mongodbOplogUrl)
         )).to.throw('Adapter validation failed. Adapter missing delete')
     })
 
