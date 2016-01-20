@@ -5,7 +5,7 @@ const Hapi = require('hapi')
 const utils = require('./utils');
 const config = require('./config');
 
-describe.only('Adapter Validation', function () {
+describe('Adapter Validation', function () {
 
     const harvester = require('../')
     const mongodbAdapter = harvester.getAdapter('mongodb')
@@ -22,6 +22,18 @@ describe.only('Adapter Validation', function () {
         buildServerSetupWithAdapters(adapterWithoutDelete, mongodbSSEAdapter(config.mongodbOplogUrl))
             .catch(e => {
                 expect(e.message).to.equal('Adapter validation failed. Adapter missing delete')
+                done()
+            })
+            .catch(done)
+    })
+
+    it('Will fail if the given adapterSSE is missing a required function', function (done) {
+
+        const adapter = mongodbSSEAdapter(config.mongodbOplogUrl)
+        const adapterWithoutStreamChanges = _.omit(adapter, 'streamChanges');
+        buildServerSetupWithAdapters(mongodbAdapter(config.mongodbUrl), adapterWithoutStreamChanges)
+            .catch(e => {
+                expect(e.message).to.equal('Adapter validation failed. Adapter missing streamChanges')
                 done()
             })
             .catch(done)
