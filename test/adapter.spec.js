@@ -17,8 +17,7 @@ describe('Adapter Validation', function () {
 
     it('Will fail if the given adapter is missing a required function', function (done) {
 
-        const adapter = mongodbAdapter(config.mongodbUrl)
-        const adapterWithoutDelete = _.omit(adapter, 'delete');
+        const adapterWithoutDelete = _.omit(mongodbAdapter(config.mongodbUrl), 'delete')
         buildServerSetupWithAdapters(adapterWithoutDelete, mongodbSSEAdapter(config.mongodbOplogUrl))
             .catch(e => {
                 expect(e.message).to.equal('Adapter validation failed. Adapter missing delete')
@@ -29,8 +28,7 @@ describe('Adapter Validation', function () {
 
     it('Will fail if the given adapterSSE is missing a required function', function (done) {
 
-        const adapter = mongodbSSEAdapter(config.mongodbOplogUrl)
-        const adapterWithoutStreamChanges = _.omit(adapter, 'streamChanges');
+        const adapterWithoutStreamChanges = _.omit(mongodbSSEAdapter(config.mongodbOplogUrl), 'streamChanges')
         buildServerSetupWithAdapters(mongodbAdapter(config.mongodbUrl), adapterWithoutStreamChanges)
             .catch(e => {
                 expect(e.message).to.equal('Adapter validation failed. Adapter missing streamChanges')
