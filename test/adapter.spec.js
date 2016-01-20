@@ -24,7 +24,7 @@ describe.only('Adapter Validation', function () {
                 expect(e.message).to.equal('Adapter validation failed. Adapter missing delete')
                 done()
             })
-            .catch((e) => done(e))
+            .catch(done)
     })
 
     it('will initialise the adapter with provided options', function () {
