@@ -1,6 +1,6 @@
 {
   "name": "hapi-harvester",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Harvester Hapi Plugin",
   "main": "index.js",
   "scripts": {
@@ -31,28 +31,30 @@
     "http-as-promised": "^1.1.0",
     "joi": "^6.9.0",
     "lodash": "^3.10.1",
-    "mongojs": "^1.4.1",
-    "mongoose": "^4.1.11",
+    "mongoose": "^4.2.8",
     "node-uuid": "^1.4.3",
     "qs": "^6.0.0",
+    "rx": "^4.0.7",
+    "rx-node": "^1.0.1",
     "susie": "^1.0.1"
   },
   "devDependencies": {
     "agco-event-source-stream": "^1.1.1",
     "chai": "^3.3.0",
     "chai-things": "^0.2.0",
+    "coveralls": "^2.11.2",
+    "eventsource": "^0.1.6",
     "hapi-swagger": "^2.2.4",
     "inert": "^3.2.0",
     "inject-then": "^2.0.2",
-    "mocha": "^2.3.3",
-    "should": "7.1.1",
-    "vision": "^4.0.1",
     "istanbul": "^0.3.7",
-    "coveralls": "^2.11.2",
-    "mocha-lcov-reporter": "0.0.2"
+    "mocha": "^2.3.3",
+    "mocha-lcov-reporter": "0.0.2",
+    "should": "7.1.1",
+    "vision": "^4.0.1"
   },
   "peerDependencies": {
-    "hapi": ">=10.4",
+    "hapi": ">=10.4 <12",
     "joi": ">=6.9"
   }
 }
