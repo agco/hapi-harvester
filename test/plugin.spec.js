@@ -27,7 +27,7 @@ describe('Plugin Basics', function () {
     })
 
     it('Attaches the plugin to Hapi server configuration', function () {
-        expect(server.plugins['hapi-harvester'].version).to.equal('0.1.0')
+        expect(server.plugins['hapi-harvester'].version).to.equal(require('../package.json').version)
     })
 
     it('should have the injectThen method available', function () {
