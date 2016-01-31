@@ -40,7 +40,7 @@ describe('SSE', function () {
 
         const baseUrl = 'http://localhost:9100'
 
-        this.timeout(5000)
+        this.timeout(20000)
 
         before(function () {
             return utils.buildDefaultServer(schema)
@@ -205,7 +205,7 @@ describe('SSE', function () {
             })
         })
 
-        describe('Given a resource x with property y When the value of y changes', function () {
+       describe('Given a resource x with property y When the value of y changes', function () {
             it('Then an SSE is broadcast with event set to x_update, ID set to the oplog timestamp' +
                 'and data set to an instance of x that only contains the new value for property y', function (done) {
 
@@ -410,30 +410,27 @@ describe('SSE', function () {
             })
         })
 
-        describe('Given a list of resources A, B, C AND base URL base_url When a GET is made to base_url/changes/stream?resources=A,D ', function () {
+       describe('Given a list of resources A, B, C AND base URL base_url When a GET is made to base_url/changes/stream?resources=A,D ', function () {
             it('Then a 400 HTTP error code and a JSON API error specifying the invalid resource are returned to the API caller ', function () {
                 return server.injectThen({
                     method: 'get',
                     url: '/changes/streaming?resources=bookas,wrongResource'
-                }).then(function () {
-                    throw new Error('Expected 400 status code')
-                }).catch(function (error) {
-                    expect(error.isBoom).to.be.true
-                    expect(error.output).to.have.property('statusCode', 400)
-                    expect(error.output.payload).to.have.property('message', 'The follow resources don\'t exist wrongResource')
+                }).then(function (res) {
+                    expect(res).to.have.property('statusCode', 400)
+                    expect(res.result.errors[0]).to.have.property('message', 'The follow resources don\'t exist wrongResource')
                 })
             })
         })
 
         describe('Given a list of resources A, B, C AND base URL base_url When a GET is made to base_url/changes/stream', function () {
             it('Then a 400 HTTP error code and a JSON API error specifying the invalid resource are returned to the API caller ', function () {
-                return server.injectThen({method: 'get', url: '/changes/streaming'}).then(function () {
-                    throw new Error('Expected 400 status code')
-                }).catch(function (error) {
-                    expect(error.isBoom).to.be.true
-                    expect(error.output).to.have.property('statusCode', 400)
+                return server.injectThen({
+                    method: 'get',
+                    url: '/changes/streaming'
+                }).then(function (res) {
+                    expect(res).to.have.property('statusCode', 400)
                     const expectedMessage = 'You have not specified any resources, please do so by providing "resource?foo,bar" as query'
-                    expect(error.output.payload).to.have.property('message', expectedMessage)
+                    expect(res.result.errors[0]).to.have.property('message', expectedMessage)
                 })
             })
         })
@@ -447,12 +444,9 @@ describe('SSE', function () {
                     method: 'get',
                     url: '/changes/streaming?resources=bookas,bookbs',
                     headers: headers
-                }).then(function () {
-                    throw new Error('Expected 400 status code')
-                }).catch(function (error) {
-                    expect(error.isBoom).to.be.true
-                    expect(error.output).to.have.property('statusCode', 400)
-                    expect(error.output.payload).to.have.property('message', 'Could not parse the time stamp provided')
+                }).then(function (res) {
+                    expect(res).to.have.property('statusCode', 400)
+                    expect(res.result.errors[0]).to.have.property('message', 'the last-event-id provided is not valid')
                 })
             })
         })

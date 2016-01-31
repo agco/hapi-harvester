@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('./config');
 
 var utils = {
     getData: (res) => {
@@ -18,12 +19,21 @@ var utils = {
         options = options || {};
         let server;
         const Hapi = require('hapi');
-        const plugin = require('../');
-        const adapter = plugin.getAdapter('mongodb');
+
+        const harvester = require('../');
+        const mongodbAdapter = harvester.getAdapter('mongodb')
+        const mongodbSSEAdapter = harvester.getAdapter('mongodb/sse')
+
         server = new Hapi.Server();
         server.connection({port: options.port || 9100});
         return new Promise((resolve) => {
-            server.register([require('../'), require('susie'), require('inject-then')
+            server.register([{
+                register: harvester,
+                options: {
+                    adapter: mongodbAdapter(config.mongodbUrl),
+                    adapterSSE: mongodbSSEAdapter(config.mongodbOplogUrl)
+                }
+            }, require('susie'), require('inject-then')
             ], () => {
                 let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
@@ -61,16 +71,16 @@ var utils = {
     },
     createDefaultServerDestructor: function () {
         return function () {
-            return new Promise(function (resolve, reject) {
-                server.stop(function (err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(err);
-                    }
-                })
-            });
-        }
+        return new Promise(function (resolve, reject) {
+            server.stop(function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            })
+        });
+    }
     }
 };
 
