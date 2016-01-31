@@ -4,6 +4,7 @@ const Joi = require('joi')
 const utils = require('./utils');
 const Hapi = require('hapi');
 const url = require('url');
+const version = require('../package').version
 
 let server, buildServer, destroyServer;
 
@@ -26,7 +27,7 @@ describe('Plugin Basics', function() {
     })
 
     it('Attaches the plugin to Hapi server configuration', function() {
-        expect(server.plugins['hapi-harvester'].version).to.equal('0.1.0')
+        expect(server.plugins['hapi-harvester'].version).to.equal(version)
     })
 
     it('should have the injectThen method available', function() {
