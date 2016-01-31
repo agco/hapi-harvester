@@ -242,7 +242,8 @@ describe('SSE', function () {
                 Rx.Observable.fromEvent(source, 'books_u')
                     .subscribe((e) => {
                         const data = JSON.parse(e.data)
-                        expect(_.omit(payloads[1].data, 'id', 'type')).to.deep.equal(data)
+                        expect(_.omit(payloads[1].data, 'type')).to.deep.equal(_.omit(data, 'id'))
+                        expect(data).to.have.property('id')
                         source.close()
                         done()
                     })
@@ -361,14 +362,6 @@ describe('SSE', function () {
         before(function () {
             baseUrl = 'http://localhost:9100'
             return utils.buildDefaultServer(schema).then(function () {
-                //TODO how are we going to register this route in prod?
-                server.route({
-                    method: 'get',
-                    path: '/changes/streaming',
-                    handler: sse({
-                        context: server
-                    })
-                })
                 return seeder(server).dropCollections('bookas', 'bookbs')
             })
         })
