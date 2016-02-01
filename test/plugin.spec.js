@@ -39,9 +39,7 @@ describe('Plugin Basics', function () {
 
     it('only sends the available verbs on OPTIONS call', function () {
 
-        ['get', 'post', 'patch', 'delete'].forEach(function (verb) {
-            server.route(server.plugins['hapi-harvester'].routes[verb](schema))
-        })
+        server.route(server.plugins['hapi-harvester'].routes.pick(schema, ['get', 'post', 'patch', 'delete', 'options']))
 
         return server.injectThen({method: 'OPTIONS', url: '/brands'})
             .then(function (res) {

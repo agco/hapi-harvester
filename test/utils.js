@@ -38,23 +38,15 @@ var utils = {
                 let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
-                        [
-                            'get',
-                            'getById',
-                            'getChangesStreaming',
-                            'post',
-                            'patch',
-                            'delete'
-                        ].forEach(function (verb) {
-                            const route = harvester.routes[verb](schema)
-                            if (_.isArray(route)) {
-                                _.forEach(route, function (route) {
-                                    server.route(route)
-                                });
-                            } else {
+
+                        const route = harvester.routes.all(schema)
+                        if (_.isArray(route)) {
+                            _.forEach(route, function (route) {
                                 server.route(route)
-                            }
-                        })
+                            });
+                        } else {
+                            server.route(route)
+                        }
 
                     });
                     resolve({server, harvester})
@@ -71,16 +63,16 @@ var utils = {
     },
     createDefaultServerDestructor: function () {
         return function () {
-        return new Promise(function (resolve, reject) {
-            server.stop(function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            })
-        });
-    }
+            return new Promise(function (resolve, reject) {
+                server.stop(function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                })
+            });
+        }
     }
 };
 
