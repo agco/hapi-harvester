@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('./config');
 
 var utils = {
     getData: (res) => {
@@ -18,33 +19,34 @@ var utils = {
         options = options || {};
         let server;
         const Hapi = require('hapi');
-        const plugin = require('../');
-        const adapter = plugin.getAdapter('mongodb');
+
+        const harvester = require('../');
+        const mongodbAdapter = harvester.getAdapter('mongodb')
+        const mongodbSSEAdapter = harvester.getAdapter('mongodb/sse')
+
         server = new Hapi.Server();
         server.connection({port: options.port || 9100});
         return new Promise((resolve) => {
-            server.register([require('../'), require('susie'), require('inject-then')
+            server.register([{
+                register: harvester,
+                options: {
+                    adapter: mongodbAdapter(config.mongodbUrl),
+                    adapterSSE: mongodbSSEAdapter(config.mongodbOplogUrl)
+                }
+            }, require('susie'), require('inject-then')
             ], () => {
                 let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
-                        [
-                            'get',
-                            'getById',
-                            'getChangesStreaming',
-                            'post',
-                            'patch',
-                            'delete'
-                        ].forEach(function (verb) {
-                            const route = harvester.routes[verb](schema)
-                            if (_.isArray(route)) {
-                                _.forEach(route, function (route) {
-                                    server.route(route)
-                                });
-                            } else {
+
+                        const route = harvester.routes.all(schema)
+                        if (_.isArray(route)) {
+                            _.forEach(route, function (route) {
                                 server.route(route)
-                            }
-                        })
+                            });
+                        } else {
+                            server.route(route)
+                        }
 
                     });
                     resolve({server, harvester})
@@ -66,7 +68,7 @@ var utils = {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(err);
+                        resolve();
                     }
                 })
             });

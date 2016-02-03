@@ -1,6 +1,6 @@
 {
   "name": "hapi-harvester",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Harvester Hapi Plugin",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,7 @@
   "dependencies": {
     "bluebird": "^2.10.2",
     "boom": "^2.9.0",
+    "create-error": "^0.3.1",
     "debug": "^2.2.0",
     "highland": "^2.5.1",
     "hoek": "^2.16.3",
