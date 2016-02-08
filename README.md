@@ -60,5 +60,6 @@ Please visit [hapi-harvesterjs.readme.io](http://hapi-harvesterjs.readme.io/v1.0
 - Extended filter operators : lt, gt, lte, gte
 - Publish change events through [SSE](http://www.w3.org/TR/eventsource/) 
 
+## Guides
 
-
+[Quick Start] (docs/QuickStart.md)
