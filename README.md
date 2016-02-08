@@ -32,15 +32,15 @@ server.register(
         
         const hh = server.plugins['hapi-harvester']
         // register the routes 
-        hh.route(brands)
-
+        hh.routes.all(brands).forEach((routes) => {
+            server.routes(routes)(brands)
+        })
         server.start()
         
     })
 ```
 
-Please visit [hapi-harvesterjs.readme.io](http://hapi-harvesterjs.readme.io/v1.0) for more docs, including a [getting started](https://hapi-harvesterjs.readme.io/docs/getting-started) guide to get yourself up and running 
-
+The code for a more complete server can be found in the [/example](example/index.js) folder.
 
 ## Features
 
@@ -62,4 +62,5 @@ Please visit [hapi-harvesterjs.readme.io](http://hapi-harvesterjs.readme.io/v1.0
 
 ## Guides
 
-[Quick Start] (docs/QuickStart.md)
+[Quick Start](docs/QuickStart.md)
+[Example Server](example/index.js)
