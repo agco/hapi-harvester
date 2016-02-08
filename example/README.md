@@ -47,6 +47,58 @@ Once they're installed, simpily run the server:
     $ npm start
 ```
 
-## Trying it out.
+## Trying it all out.
 
-TODO: add the commands and expected output here.
+In a browser, open:
+
+```
+  http://localhost:3000/brands
+```
+
+And we should get a response from the server like this:
+
+```
+  {"data":[]}
+```
+
+Not very exciting as we don't have any data yet. So lets do that now. Again using `curl` in a terminal, we can add data.
+
+```shell
+  $ curl -X "POST" "http://localhost:3000/brands" \
+    -H "Content-Type: application/json" \
+    -d $'{ "data": { "type": "brands", "attributes": { "code": "MF", "description": "Massey Ferguson" } } }'
+```
+
+Now when we refresh the browser, we get:
+
+```
+  {"data":[{"type":"brands","attributes":{"code":"MF","description":"Massey Ferguson"},"id":"8ab18ce6-0811-4a92-a686-c4124921eda1"}]}
+```
+
+But that's not all, say we switched brands and need to update our backend. Using `curl`, we can edit our data.
+
+```
+  $ curl -X "PATCH" "http://localhost:3000/brands/8ab18ce6-0811-4a92-a686-c4124921eda1" \
+    -H "Content-Type: application/json" \
+    -d $'{ "data": { "type": "brands", "attributes": { "code": "VT", "description": "Viltra" } } }'
+```
+
+Now if we refresh the browser again, we get:
+
+```
+  {"data":[{"type":"brands","attributes":{"description":"Viltra","code":"VT"},"id":"8ab18ce6-0811-4a92-a686-c4124921eda1"}]}
+```
+
+Finally we can delete this record too. Again using `curl`, we can issue the following command:
+
+```
+  $ curl -X "DELETE" "http://localhost:3000/brands/8ab18ce6-0811-4a92-a686-c4124921eda1" \
+    -H "Content-Type: application/json"
+```
+
+And after refreshing the browser, we're back to were we started, with no records in the database.
+
+```
+  {"data":[]}
+```
+
