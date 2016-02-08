@@ -7,7 +7,8 @@
 const Hapi = require('hapi'),
     Joi = require('joi'),
     url = require('url'),
-    harvester = require('hapi-harvester')
+    harvester = require('hapi-harvester'),
+    susie = require('susie')
 
 
 
@@ -49,7 +50,8 @@ server.register([
         options: {
             adapter: adapter // use the MongoDB adapter created above
         }
-    } ],
+    },
+    susie ],  // for streaming SSE
     () => {
 
         //

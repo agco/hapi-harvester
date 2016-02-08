@@ -245,3 +245,52 @@ And after refreshing the browser, we're back to were we started, with no records
 ## Bonus: SSE streaming
 
 
+Adding SSE stream of change events is very easy. First we need to require the `susie` a hapi plugin that adds SSE's to 
+a hapi server.
+
+```js
+  ...
+  const Hapi = require('hapi'),
+      Joi = require('joi'),
+      url = require('url'),
+      harvester = require('hapi-harvester'),
+      susie = require('susie')                // for SSE 
+  ...
+
+```
+
+Then add it to the list of registered modules like so...
+
+```js
+  ...
+  server.register([
+      {
+          register: harvester, // the hapi-harvester plugin "required" from above
+          options: {
+              adapter: adapter // use the MongoDB adapter created above
+          }
+      },
+      
+      // also require susie for streaming SSEs
+      susie ],
+      () => {
+        ...
+      })
+  ...    
+```
+
+And that's it. It's that simple. To connect to the stream, in a shell use the following `curl` command:
+
+```shell
+  $ curl -X "GET" "http://localhost:3000/brands/changes/streaming"
+```
+
+And at the very least you should see some "ticker" events every 5 seconds. for example:
+
+```shell
+  ...
+  event: ticker
+  id: 170
+  data: 170
+  ...
+```
