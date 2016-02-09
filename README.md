@@ -33,7 +33,7 @@ server.register(
         const hh = server.plugins['hapi-harvester']
         // register the routes 
         hh.routes.all(brands).forEach((routes) => {
-            server.routes(routes)(brands)
+            server.routes(routes)
         })
         server.start()
         
