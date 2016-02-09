@@ -2,6 +2,7 @@
 
 const _ = require('lodash')
 const Hapi = require('hapi')
+const Joi = require('joi')
 const utils = require('./utils');
 const config = require('./config');
 
@@ -55,7 +56,28 @@ describe('Adapter Validation', function () {
         function constructAdapter() {
             harvester.getAdapter('nonexistant')
         }
+
         expect(constructAdapter).to.throw(Error)
+    })
+
+    it('should handle attribute named "type"', function () {
+        //Given
+        const schema = {
+            type: 'car',
+            attributes: {
+                type: Joi.string()
+            }
+        }
+        //When
+        var adapterInstance = mongodbAdapter(config.mongodbUrl);
+        return adapterInstance.connect().then(function () {
+            const model = adapterInstance.processSchema(schema)
+            expect(model.schema.path('attributes.type')).to.be.an('object')
+            return adapterInstance.disconnect();
+        }).catch(function (e) {
+            adapterInstance.disconnect();
+            throw e;
+        })
     })
 
 })
@@ -75,8 +97,11 @@ function buildServerSetupWithAdapters(adapter, adapterSSE) {
             {register: require('inject-then')}
         ], () => {
             server.start((err)=> {
-                if (err) reject(err)
-                else resolve(server)
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(server)
+                }
             })
         })
     })
