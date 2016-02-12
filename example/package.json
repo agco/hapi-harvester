@@ -1,0 +1,22 @@
+{
+  "name": "hapi-test",
+  "version": "1.0.0",
+  "description": "Test application to try out Hapi-Havester",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha"
+  },
+  "keywords": [
+    "hapi",
+    "hapi-havester"
+  ],
+  "author": "Stephen Parker <shurakaisoft@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "hapi": "10.4.0",
+    "hapi-harvester": "0.2.0",
+    "joi": "7.2.3",
+    "susie": "2.0.0"
+  }
+}

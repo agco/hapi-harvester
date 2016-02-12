@@ -87,7 +87,7 @@ describe('remote link', function () {
                     const data = {
                         type: 'people',
                         attributes: {firstName: 'Tony', lastName: 'Maley'},
-                        relationships: {country: {type: 'countries', id: that.countryId}}
+                        relationships: {country: {data: {type: 'countries', id: that.countryId}}}
                     };
                     return server2.injectThen({method: 'post', url: '/people', payload: {data: data}});
                 }).then(function (response) {
@@ -104,7 +104,10 @@ describe('remote link', function () {
                     const data = {
                         type: 'posts',
                         attributes: {},
-                        relationships: {author: {type: 'people', id: that.authorId}, comments: [{type: 'comments', id: that.commentId}]}
+                        relationships: {
+                          author: {data: {type: 'people', id: that.authorId}},
+                          comments: {data: [{type: 'comments', id: that.commentId}]}
+                        }
                     };
                     return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}});
                 }).then(function (response) {
@@ -114,14 +117,18 @@ describe('remote link', function () {
 
         after(function () {
             const promise1 = new Promise(function (resolve) {
-                utils.removeFromDB(server1, ['posts', 'comments', 'topics']).then(function () {
+                // TODO: calling removeFromDB causes after() to timeout, so i've commented it out
+                // Still not sure what the root cause of this is though.
+                //utils.removeFromDB(server1, ['posts', 'comments', 'topics']).then(function () {
                     server1.stop(resolve);
-                });
+                //});
             });
             const promise2 = new Promise(function (resolve) {
-                utils.removeFromDB(server2, ['people', 'countries']).then(function () {
+                // TODO: calling removeFromDB causes after() to timeout, so i've commented it out
+                // Still not sure what the root cause of this is though.
+                //utils.removeFromDB(server2, ['people', 'countries']).then(function () {
                     server2.stop(resolve);
-                });
+                //});
             });
             return Promise.all([promise1, promise2]);
         });
@@ -167,7 +174,7 @@ describe('remote link', function () {
                 const data = {
                     type: 'posts',
                     attributes: {},
-                    relationships: {comments: [{type: 'comments', id: '00000000-0000-4000-b000-000000000000'}]}
+                    relationships: {comments: {data: [{type: 'comments', id: '00000000-0000-4000-b000-000000000000'}]}}
                 };
                 return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}}).then(function (result) {
                     expect(result.statusCode).to.equal(201)
