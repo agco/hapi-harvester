@@ -49,8 +49,12 @@ const data = {
                 appearances: 2007
             },
             relationships: {
-                pets: [{type: 'pets', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}, {type: 'pets', id: 'a344d722-b7f9-49dd-9842-f0a375f7dfdc'}],
-                soulmate: {type: 'people', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                pets: {
+                    data: [{type: 'pets', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}, {type: 'pets', id: 'a344d722-b7f9-49dd-9842-f0a375f7dfdc'}]
+                },
+                soulmate: {
+                    data: {type: 'people', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                }
             }
         },
         {
@@ -60,7 +64,9 @@ const data = {
                 name: 'Paul'
             },
             relationships: {
-                pets: [{type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}]
+                pets: {
+                    data: [{type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}]
+                }
             }
         }
     ],
@@ -86,7 +92,9 @@ const data = {
                 name: 'Horsepol'
             },
             relationships: {
-                owner: {type: 'people', id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc'}
+                owner: {
+                    data: {type: 'people', id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc'}
+                }
             }
         }
     ],
@@ -94,7 +102,9 @@ const data = {
         {
             type: 'collars',
             relationships: {
-                collarOwner: {type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                collarOwner: {
+                    data: {type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                }
             }
         }
     ]
