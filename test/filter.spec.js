@@ -46,6 +46,7 @@ describe('Filtering', function() {
     after(utils.createDefaultServerDestructor());
 
     it('Will be able to GET all from /brands with a equal filtering param', function () {
+        //return server.injectThen({method: 'get', url: '/brands'})
         return server.injectThen({method: 'get', url: '/brands?filter[year]=2007'})
         .then((res) => {
             expect(res.result.data).to.have.length(1)
