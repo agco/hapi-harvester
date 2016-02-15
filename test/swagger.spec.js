@@ -14,8 +14,12 @@ describe('Swagger docs', function () {
                 appearances: Joi.number()
             },
             relationships: {
-                pets: [{type: 'pets'}],
-                soulmate: {type: 'people'}
+                pets: {
+                    data: [{type: 'pets'}]
+                },
+                soulmate: {
+                    data: {type: 'people'}
+                }
             }
         },
         pets: {
@@ -24,7 +28,9 @@ describe('Swagger docs', function () {
                 name: Joi.string()
             },
             relationships: {
-                owner: {type: 'people'}
+                owner: {
+                    data: {type: 'people'}
+                }
             }
         }
     }
@@ -221,16 +227,11 @@ describe('Swagger docs', function () {
                     type: 'object',
                     properties: {
                         pets: {
-                            type: 'array',
-                            defaultValue: undefined,
+                            type: 'pets',
+                            defaultValue: null,
                             description: undefined,
-                            maxItems: undefined,
-                            minItems: undefined,
                             notes: undefined,
-                            tags: undefined,
-                            items: {
-                                $ref: 'pets'
-                            }
+                            tags: undefined
                         },
                         soulmate: {
                             type: 'soulmate',
@@ -247,7 +248,8 @@ describe('Swagger docs', function () {
                     properties: {
                         id: {
                             type: 'string',
-                            defaultValue: null,
+                            required: true,
+                            defaultValue: undefined,
                             description: 'RFC4122 v4 UUID',
                             notes: undefined,
                             tags: undefined
@@ -256,21 +258,7 @@ describe('Swagger docs', function () {
                             type: 'string',
                             required: true,
                             defaultValue: undefined,
-                            enum: ['people'],
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
-                        },
-                        attributes: {
-                            type: 'attributes',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
-                        },
-                        relationships: {
-                            type: 'relationships',
-                            defaultValue: null,
+                            enum: ['pets'],
                             description: undefined,
                             notes: undefined,
                             tags: undefined

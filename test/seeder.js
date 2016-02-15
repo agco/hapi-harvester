@@ -16,9 +16,9 @@ module.exports = function (harvesterInstance) {
     function post(key, items) {
         return _(items).map(function (item) {
             return harvesterInstance.injectThen({method: 'post', url: '/' + key, payload: {data: item}}).then(function (response) {
-                //if (response.statusCode !== 201) {
-                //    console.log(JSON.stringify(response.result, null, '  '));
-                //}
+                if (response.statusCode !== 201) {
+                   console.log(JSON.stringify(response.result, null, '  '));
+                }
                 expect(response.statusCode).to.equal(201);
                 return response.result.data.id;
             });
