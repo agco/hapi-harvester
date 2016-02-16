@@ -198,6 +198,23 @@ describe('Inclusion', function () {
                     });
                 });
         });
+        it('should handle to-many relationship in include', function () {
+            return server.injectThen({method: 'get', url: '/people?include=pets.owner&filter[id]=abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
+                .then(function (res) {
+                    const body = res.result;
+                    expect(body.included).to.be.an.Array;
+                    expect(body.included).to.have.length(2);
+                    _.forEach(body.included, function (item) {
+                        if (item.type === 'pets' && item.id === 'c344d722-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        if (item.type === 'pets' && item.id === 'a344d722-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        throw new Error('Unexpected included item: ' + JSON.stringify(item, null, 2));
+                    });
+                });
+        });
         describe('when relationship not defined on schema', function () {
             it('should respond with 500', function () {
                 return server.injectThen({method: 'get', url: '/ents?include=owner'})
