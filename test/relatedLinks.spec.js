@@ -96,7 +96,7 @@ const data = {
     ]
 }
 
-describe.only('Related links', () => {
+describe('Related links', () => {
 
     before(function () {
         return utils.buildDefaultServer(schema).then((server) => {
