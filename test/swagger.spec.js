@@ -112,10 +112,11 @@ describe('Swagger docs', function () {
     })
 
     describe('GET /docs', function () {
-        let apis
+        let apis, definitions
         before(function () {
             return server.injectThen({method: 'get', url: '/docs'}).then(function (res) {
                 apis = res.result.paths
+                definitions = res.result.definitions
             })
         })
         it('should return a full list of registered paths', function () {
@@ -128,147 +129,84 @@ describe('Swagger docs', function () {
             })
             expect(Object.keys(allPaths)).to.have.length(24)
         })
-        // not sure this data exists...
-        it.skip('should describe models', function () {
+        it('should describe models', function () {
             const models = {
                 fields: {
-                    id: 'fields',
                     type: 'object',
                     properties: {}
                 },
                 page: {
-                    id: 'page',
                     type: 'object',
                     properties: {
                         limit: {
-                            type: 'number',
-                            defaultValue: null,
-                            description: undefined,
-                            maximum: undefined,
-                            minimum: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'number'
                         },
                         offset: {
-                            type: 'number',
-                            defaultValue: null,
-                            description: undefined,
-                            maximum: undefined,
-                            minimum: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'number'
                         }
                     }
                 },
                 filter: {
-                    id: 'filter',
                     type: 'object',
                     properties: {
                         id: {
-                            type: 'string',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'string'
                         },
                         name: {
-                            type: 'string',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'string'
                         },
                         appearances: {
-                            type: 'string',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'string'
                         },
                         pets: {
-                            type: 'string',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'string'
                         },
                         soulmate: {
-                            type: 'string',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'string'
                         }
                     }
                 },
                 attributes: {
-                    id: 'attributes',
                     type: 'object',
                     properties: {
                         name: {
-                            type: 'string',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'string'
                         },
                         appearances: {
-                            type: 'number',
-                            defaultValue: null,
-                            description: undefined,
-                            maximum: undefined,
-                            minimum: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            type: 'number'
                         }
                     }
                 },
                 relationships: {
-                    id: 'relationships',
                     type: 'object',
                     properties: {
                         pets: {
-                            type: 'pets',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            '$ref': '#/definitions/pets',
+                            type: 'object'
                         },
                         soulmate: {
-                            type: 'soulmate',
-                            defaultValue: null,
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            '$ref': '#/definitions/soulmate',
+                            type: 'object'
                         }
                     }
                 },
                 data: {
-                    id: 'data',
                     type: 'object',
+                    required: ['id', 'type'],
                     properties: {
                         id: {
                             type: 'string',
-                            required: true,
-                            defaultValue: undefined,
-                            description: 'RFC4122 v4 UUID',
-                            notes: undefined,
-                            tags: undefined
+                            description: 'RFC4122 v4 UUID'
                         },
                         type: {
                             type: 'string',
-                            required: true,
-                            defaultValue: undefined,
-                            enum: ['pets'],
-                            description: undefined,
-                            notes: undefined,
-                            tags: undefined
+                            enum: ['pets']
                         }
                     }
                 }
             }
             _.forEach(models, function (item, key) {
-                expect(result.models[key]).to.eql(item)
+                expect(definitions[key]).to.eql(item)
             })
         })
         it('should describe GET /people parameters', function () {
