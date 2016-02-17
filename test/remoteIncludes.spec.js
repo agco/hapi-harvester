@@ -26,9 +26,15 @@ describe('remote link', function () {
                     type: 'posts',
                     attributes: {},
                     relationships: {
-                        author: {type: 'people', baseUri: 'http://localhost:' + app2Port},
-                        comments: [{type: 'comments'}],
-                        topic: {type: 'topics'}
+                        author: {
+                            data: {type: 'people', baseUri: 'http://localhost:' + app2Port}
+                        },
+                        comments: {
+                            data: [{type: 'comments'}]
+                        },
+                        topic: {
+                            data: {type: 'topics'}
+                        }
                     }
                 },
                 comments: {
@@ -58,7 +64,9 @@ describe('remote link', function () {
                         lastName: Joi.string()
                     },
                     relationships: {
-                        country: {type: 'countries'}
+                        country: {
+                            data: {type: 'countries'}
+                        }
                     }
                 },
                 countries: {
@@ -87,7 +95,11 @@ describe('remote link', function () {
                     const data = {
                         type: 'people',
                         attributes: {firstName: 'Tony', lastName: 'Maley'},
-                        relationships: {country: {data: {type: 'countries', id: that.countryId}}}
+                        relationships: {
+                          country: {
+                            data: {type: 'countries', id: that.countryId}
+                          }
+                        }
                     };
                     return server2.injectThen({method: 'post', url: '/people', payload: {data: data}});
                 }).then(function (response) {
@@ -105,13 +117,19 @@ describe('remote link', function () {
                         type: 'posts',
                         attributes: {},
                         relationships: {
-                          author: {data: {type: 'people', id: that.authorId}},
-                          comments: {data: [{type: 'comments', id: that.commentId}]}
+                            author: {
+                              data: {type: 'people', id: that.authorId}
+                            },
+                            comments: {
+                              data: [{type: 'comments', id: that.commentId}]
+                            }
                         }
                     };
                     return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}});
                 }).then(function (response) {
                     expect(response.statusCode).to.equal(201);
+                }).catch((e) => {
+                  console.error('Caught error starting server', e);
                 });
         });
 
@@ -174,7 +192,11 @@ describe('remote link', function () {
                 const data = {
                     type: 'posts',
                     attributes: {},
-                    relationships: {comments: {data: [{type: 'comments', id: '00000000-0000-4000-b000-000000000000'}]}}
+                    relationships: {
+                      comments: {
+                        data: [{type: 'comments', id: '00000000-0000-4000-b000-000000000000'}]
+                      }
+                    }
                 };
                 return server1.injectThen({method: 'post', url: '/posts', payload: {data: data}}).then(function (result) {
                     expect(result.statusCode).to.equal(201)

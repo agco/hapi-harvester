@@ -13,8 +13,12 @@ const schema = {
             appearances: Joi.number()
         },
         relationships: {
-            pets: [{type: 'pets'}],
-            soulmate: {type: 'people'}
+            pets: {
+              data: [{type: 'pets'}]
+            },
+            soulmate: {
+              data: {type: 'people'}
+            }
         }
     },
     pets: {
@@ -23,14 +27,18 @@ const schema = {
             name: Joi.string()
         },
         relationships: {
-            owner: {type: 'people'}
+            owner: {
+              data: {type: 'people'}
+            }
         }
     },
     collars: {
         type: 'collars',
         attributes: {},
         relationships: {
-            collarOwner: {type: 'pets'}
+            collarOwner: {
+              data: {type: 'pets'}
+            }
         }
     },
     ents: {
@@ -184,6 +192,23 @@ describe('Inclusion', function () {
                             return;
                         }
                         if (item.type === 'people' && item.id === 'c344d722-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        throw new Error('Unexpected included item: ' + JSON.stringify(item, null, 2));
+                    });
+                });
+        });
+        it('should handle to-many relationship in include', function () {
+            return server.injectThen({method: 'get', url: '/people?include=pets.owner&filter[id]=abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
+                .then(function (res) {
+                    const body = res.result;
+                    expect(body.included).to.be.an.Array;
+                    expect(body.included).to.have.length(2);
+                    _.forEach(body.included, function (item) {
+                        if (item.type === 'pets' && item.id === 'c344d722-b7f9-49dd-9842-f0a375f7dfdc') {
+                            return;
+                        }
+                        if (item.type === 'pets' && item.id === 'a344d722-b7f9-49dd-9842-f0a375f7dfdc') {
                             return;
                         }
                         throw new Error('Unexpected included item: ' + JSON.stringify(item, null, 2));

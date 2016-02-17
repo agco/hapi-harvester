@@ -14,8 +14,12 @@ const schema = {
             appearances: Joi.number()
         },
         relationships: {
-            pets: [{type: 'pets'}],
-            soulmate: {type: 'people'}
+            pets: {
+                data: [{type: 'pets'}]
+            },
+            soulmate: {
+                data: {type: 'people'}
+            }
         }
     },
     pets: {
@@ -24,7 +28,9 @@ const schema = {
             name: Joi.string()
         },
         relationships: {
-            owner: {type: 'people'}
+            owner: {
+                data: {type: 'people'}
+            }
         }
     }
 }
@@ -55,7 +61,7 @@ const data = {
             },
             relationships: {
                 pets: {
-                  data: []
+                    data: []
                 }
             }
         }
@@ -90,7 +96,7 @@ const data = {
     ]
 }
 
-describe('Related links', () => {
+describe.only('Related links', () => {
 
     before(function () {
         return utils.buildDefaultServer(schema).then((server) => {
@@ -173,7 +179,7 @@ describe('Related links', () => {
                         expect(res.statusCode).to.equal(200);
                         const person = res.result.data;
                         expect(person).to.exist;
-                        const relatedLink = person.relationships.pets[0].links.related;
+                        const relatedLink = person.relationships.pets.data[0].links.related;
                         const path = url.parse(relatedLink).path;
                         expect(relatedLink).to.be.a.String;
                         expect(path).to.equal("/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets");

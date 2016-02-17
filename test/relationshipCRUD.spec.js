@@ -13,8 +13,12 @@ const schema = {
             appearances: Joi.number()
         },
         relationships: {
-            pets: [{type: 'pets'}],
-            soulmate: {type: 'people'}
+            pets: {
+                data: [{type: 'pets'}]
+            },
+            soulmate: {
+                data: {type: 'people'}
+            }
         }
     },
     pets: {
@@ -23,14 +27,18 @@ const schema = {
             name: Joi.string()
         },
         relationships: {
-            owner: {type: 'people'}
+            owner: {
+                data: {type: 'people'}
+            }
         }
     },
     collars: {
         type: 'collars',
         attributes: {},
         relationships: {
-            collarOwner: {type: 'pets'}
+            collarOwner: {
+                data: {type: 'pets'}
+            }
         }
     },
     ents: {
@@ -138,7 +146,7 @@ describe('Relationship CRUD', function () {
                         return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
                     }).then(function (res) {
                         const body = res.result
-                        expect(body.data.relationships.soulmate.id).to.equal('b344d722-b7f9-49dd-9842-f0a375f7dfdc')
+                        expect(body.data.relationships.soulmate.data.id).to.equal('b344d722-b7f9-49dd-9842-f0a375f7dfdc')
                     })
             })
             it('should delete relationship ', function () {
@@ -151,7 +159,7 @@ describe('Relationship CRUD', function () {
                         return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
                     }).then(function (res) {
                         const body = res.result
-                        expect(body.data.relationships.soulmate).to.be.null
+                        expect(body.data.relationships.soulmate.data).to.be.null
                     })
             })
             it('should respond with 400 status code when data missing', function () {
@@ -236,7 +244,7 @@ describe('Relationship CRUD', function () {
                         return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
                     }).then(function (res) {
                         const body = res.result
-                        expect(body.data.relationships.soulmate).to.be.null
+                        expect(body.data.relationships.soulmate.data).to.be.null
                     })
             })
         })
@@ -274,7 +282,7 @@ describe('Relationship CRUD', function () {
                         return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
                     }).then(function (res) {
                         const body = res.result
-                        expect(_.pluck(body.data.relationships.pets, 'id')).to.eql(['b344d722-b7f9-49dd-9842-f0a375f7dfdc'])
+                        expect(_.pluck(body.data.relationships.pets.data, 'id')).to.eql(['b344d722-b7f9-49dd-9842-f0a375f7dfdc'])
                     })
             })
         })
@@ -301,7 +309,7 @@ describe('Relationship CRUD', function () {
                         const expectedItems = ['a344d722-b7f9-49dd-9842-f0a375f7dfdc',
                                                'b344d722-b7f9-49dd-9842-f0a375f7dfdc',
                                                'c344d722-b7f9-49dd-9842-f0a375f7dfdc']
-                        expect(_.pluck(body.data.relationships.pets, 'id').sort()).to.eql(expectedItems)
+                        expect(_.pluck(body.data.relationships.pets.data, 'id').sort()).to.eql(expectedItems)
                     })
             })
         })
@@ -313,7 +321,7 @@ describe('Relationship CRUD', function () {
                         return server.injectThen({method: 'get', url: '/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
                     }).then(function (res) {
                         const body = res.result
-                        expect(body.data.relationships.pets).to.be.null
+                        expect(body.data.relationships.pets.data).to.be.null
                     })
             })
         })

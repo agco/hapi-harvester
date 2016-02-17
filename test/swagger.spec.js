@@ -16,8 +16,12 @@ describe('Swagger docs', function () {
                 appearances: Joi.number()
             },
             relationships: {
-                pets: [{type: 'pets'}],
-                soulmate: {type: 'people'}
+                pets: {
+                    data: [{type: 'pets'}]
+                },
+                soulmate: {
+                    data: {type: 'people'}
+                }
             }
         },
         pets: {
@@ -26,7 +30,9 @@ describe('Swagger docs', function () {
                 name: Joi.string()
             },
             relationships: {
-                owner: {type: 'people'}
+                owner: {
+                    data: {type: 'people'}
+                }
             }
         }
     }
