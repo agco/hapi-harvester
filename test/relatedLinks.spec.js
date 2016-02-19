@@ -179,7 +179,7 @@ describe('Related links', () => {
                         expect(res.statusCode).to.equal(200);
                         const person = res.result.data;
                         expect(person).to.exist;
-                        const relatedLink = person.relationships.pets.data[0].links.related;
+                        const relatedLink = person.relationships.pets.links.related;
                         const path = url.parse(relatedLink).path;
                         expect(relatedLink).to.be.a.String;
                         expect(path).to.equal("/people/abcdefff-b7f9-49dd-9842-f0a375f7dfdc/pets");
