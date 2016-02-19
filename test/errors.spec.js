@@ -57,27 +57,33 @@ describe('Global Error Handling', function () {
         beforeEach(() => {
             Brands = server.plugins['hapi-harvester'].adapter.models.brands
 
-            // create uniqueness constraint on db
-            Brands.schema.path('attributes.code').index({ unique: true, sparse: true })
-
-            Brands.ensureIndexes((err) => {
-                if (err) console.log('ensureIndexes:', err)
+            return Brands.remove({})
+            .then(() => {
+                // create uniqueness constraint on db
+                return Brands.schema.path('attributes.code').index({ unique: true, sparse: true })
             })
-            return Promise.delay(1000)
+            .then(() => {
+                return Brands.ensureIndexes((err) => {
+                    if (err) console.log('ensureIndexes:', err)
+                })
+            })
             .then(() => {
                 // seed brand test data
-                Brands.create(data);
+                return Brands.create(data);
             })
         })
 
         after(() => {
-            Brands.collection.dropAllIndexes((err) => {
-                if (err) console.log('dropAllIndexes:', err)
-            })
+            Brands.remove({})
+                .then(() => {
+                    Brands.collection.dropAllIndexes((err) => {
+                        if (err) console.log('dropAllIndexes:', err)
+                    })
+                })
         })
 
 
-        it.only('returns a 409 error to the client', () => {
+        it('returns a 409 error to the client', () => {
             let duplicateBrand = data
             return server.injectThen({ method: 'post', url: '/brands', payload: { data: duplicateBrand }})
             .then((res) => {
