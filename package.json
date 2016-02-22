@@ -45,7 +45,8 @@
     "chai-things": "^0.2.0",
     "coveralls": "^2.11.2",
     "eventsource": "^0.1.6",
-    "hapi-swagger": "^2.2.4",
+    "hapi": "13.0.0",
+    "hapi-swagger": "4.2.1",
     "inert": "^3.2.0",
     "inject-then": "^2.0.2",
     "istanbul": "^0.3.7",
@@ -55,7 +56,6 @@
     "vision": "^4.0.1"
   },
   "peerDependencies": {
-    "hapi": ">=10.4 <12",
     "joi": ">=6.9"
   }
 }
