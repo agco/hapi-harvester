@@ -49,6 +49,7 @@ var utils = {
                         }
 
                     });
+                    server.route(harvester.routes.getChangesStreaming())
                     resolve({server, harvester})
                 })
             })
