@@ -36,7 +36,8 @@ var utils = {
             }, require('susie'), require('inject-then')
             ], () => {
                 let harvester = server.plugins['hapi-harvester'];
-                server.start(() => {
+                server.start((err) => {
+                    if (err) console.error(err);
                     _.forEach(schemas, function (schema) {
 
                         const route = harvester.routes.all(schema)
