@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const should = require('should')
+const Promise = require('bluebird')
 
 const seeder = require('./seeder')
 const utils = require('./utils')
@@ -13,6 +14,14 @@ const schema = {
             code: Joi.string().min(2).max(10),
             description: Joi.string()
         }
+    }
+};
+
+const data = {
+    type: 'brands',
+    attributes: {
+        code: 'MF',
+        description: 'Massey Furgeson'
     }
 };
 
@@ -42,4 +51,44 @@ describe('Global Error Handling', function () {
 		})
 	})
 
+    describe('Given a duplicate post that voilates a uniqueness constraint on a collection', () => {
+        let Brands
+
+        beforeEach(() => {
+            Brands = server.plugins['hapi-harvester'].adapter.models.brands
+
+            return Brands.remove({})
+            .then(() => {
+                // create uniqueness constraint on db
+                return Brands.schema.path('attributes.code').index({ unique: true, sparse: true })
+            })
+            .then(() => {
+                return Brands.ensureIndexes((err) => {
+                    if (err) console.log('ensureIndexes:', err)
+                })
+            })
+            .then(() => {
+                // seed brand test data
+                return Brands.create(data);
+            })
+        })
+
+        after(() => {
+            Brands.remove({})
+                .then(() => {
+                    Brands.collection.dropAllIndexes((err) => {
+                        if (err) console.log('dropAllIndexes:', err)
+                    })
+                })
+        })
+
+
+        it('returns a 409 error to the client', () => {
+            let duplicateBrand = data
+            return server.injectThen({ method: 'post', url: '/brands', payload: { data: duplicateBrand }})
+            .then((res) => {
+                expect(res.statusCode).to.equal(409)
+            })
+        })
+    })
 })

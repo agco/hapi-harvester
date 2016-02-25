@@ -16,9 +16,9 @@ module.exports = function (harvesterInstance) {
     function post(key, items) {
         return _(items).map(function (item) {
             return harvesterInstance.injectThen({method: 'post', url: '/' + key, payload: {data: item}}).then(function (response) {
-                //if (response.statusCode !== 201) {
-                //    console.log(JSON.stringify(response.result, null, '  '));
-                //}
+                if (response.statusCode !== 201) {
+                   console.log(JSON.stringify(response.result, null, '  '));
+                }
                 expect(response.statusCode).to.equal(201);
                 return response.result.data.id;
             });
@@ -30,7 +30,7 @@ module.exports = function (harvesterInstance) {
     }
 
     function drop(collectionName) {
-        var model = harvesterInstance.plugins.harvester.adapter.models[collectionName];
+        var model = harvesterInstance.plugins['hapi-harvester'].adapter.models[collectionName];
         if (model) {
             return model.remove({}).lean().exec();
         } else {
@@ -71,11 +71,25 @@ module.exports = function (harvesterInstance) {
         });
     }
 
+    function seed(schema) {
+        var promises = _.map(schema, function (fixture, collectionName) {
+            return post(collectionName, fixture);
+        });
+        return Promise.all(promises).then(function (result) {
+            var response = {};
+            _.forEach(result, function (item) {
+                _.extend(response, item);
+            });
+            return response;
+        });
+    }
+
     if (null == harvesterInstance) {
         throw new Error('Harvester instance is required param');
     }
 
     return {
+        seed: seed,
         dropCollections: dropCollections,
         dropCollectionsAndSeed: dropCollectionsAndSeed
     }
