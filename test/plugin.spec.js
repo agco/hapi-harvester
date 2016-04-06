@@ -5,6 +5,7 @@ const utils = require('./utils');
 const Hapi = require('hapi');
 const url = require('url');
 const config = require('./config');
+const _ = require('lodash')
 
 let server, buildServer, destroyServer;
 
@@ -58,34 +59,73 @@ describe('Plugin Basics', function () {
                 options: {
                     adapterSSE: harvester.getAdapter('mongodb/sse')(config.mongodbOplogUrl)
                 }
-            }], ()=>{})
+            }, require('susie')], ()=> {
+            })
         }
 
         expect(bootstrapWithoutAdapter).to.throw(Error)
         done()
     })
 
-    it('fails if an adapterSSE is not provided', function (done) {
+    describe('adapterSSE is not configured', ()=> {
 
         function bootstrapWithoutAdapter() {
-            server = new Hapi.Server()
-            server.connection()
+
             const harvester = require('../lib/plugin')
-            server.register([{
-                register: harvester,
-                options: {
-                    adapter: harvester.getAdapter('mongodb')(config.mongodbUrl)
-                }
-            }], ()=>{})
+
+            const server = new Hapi.Server()
+            server.connection()
+            return server.register([{
+                    register: harvester,
+                    options: {
+                        adapter: harvester.getAdapter('mongodb')(config.mongodbUrl)
+                    }
+                }])
+                .then(()=> {
+                    return server
+                })
         }
 
-        expect(bootstrapWithoutAdapter).to.throw(Error)
-        done()
+        it('initialises without errors', function (done) {
+
+            expect(bootstrapWithoutAdapter).to.not.throw(Error)
+            done()
+        })
+
+        it('routes.all does not return getChangesStreaming', ()=> {
+            return bootstrapWithoutAdapter()
+                .then((server)=> {
+                    const hh = server.plugins['hapi-harvester'];
+
+                    const routes = hh.routes.all(schema);
+                    const getChangesStreaming = _.find(routes, {method: 'GET', path: `/brands/changes/streaming`});
+
+                    expect(getChangesStreaming).to.be.empty
+                    return server.stop()
+                })
+        })
+
+        it('invoke getChangesStreaming fails', ()=> {
+            bootstrapWithoutAdapter()
+                .then((server)=> {
+                    const hh = server.plugin['hapi-harvester'];
+
+                    function invokeGetChangesStreaming() {
+                        return hh.routes.getChangesStreaming(schema)
+                    }
+
+                    expect(invokeGetChangesStreaming).to.throw(Error)
+                    return server.stop()
+                })
+        })
+
     })
+
 
 })
 
 buildServer = function (done) {
+
     server = new Hapi.Server()
     server.connection()
 
@@ -101,7 +141,7 @@ buildServer = function (done) {
                 adapterSSE: mongodbSSEAdapter(config.mongodbOplogUrl)
             }
         },
-        require('inject-then')
+        require('susie'), require('inject-then')
     ], ()=> {
         server.start(done)
     })
