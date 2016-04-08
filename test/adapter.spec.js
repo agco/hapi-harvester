@@ -94,7 +94,7 @@ function buildServerSetupWithAdapters(adapter, adapterSSE) {
                 adapterSSE: adapterSSE
             }
             },
-            {register: require('inject-then')}
+            require('susie'), require('inject-then')
         ], () => {
             server.start((err)=> {
                 if (err) {
