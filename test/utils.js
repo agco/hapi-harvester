@@ -41,6 +41,7 @@ var utils = {
                         const routes = harvester.routes.all(schema)
                         _.forEach(routes, (route) => server.route(route))
                     });
+                    server.route(harvester.routes.getChangesStreaming())
                     resolve({server, harvester})
                 })
             })
