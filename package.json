@@ -1,6 +1,6 @@
 {
   "name": "hapi-harvester",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Harvester Hapi Plugin",
   "main": "index.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "http-as-promised": "^1.1.0",
     "joi": "^6.9.0",
     "lodash": "^3.10.1",
+    "mongodb": "2.1.16",
     "mongoose": "^4.2.8",
     "node-uuid": "^1.4.3",
     "qs": "^6.0.0",
