@@ -38,17 +38,10 @@ var utils = {
                 let harvester = server.plugins['hapi-harvester'];
                 server.start(() => {
                     _.forEach(schemas, function (schema) {
-
-                        const route = harvester.routes.all(schema)
-                        if (_.isArray(route)) {
-                            _.forEach(route, function (route) {
-                                server.route(route)
-                            });
-                        } else {
-                            server.route(route)
-                        }
-
+                        const routes = harvester.routes.all(schema)
+                        _.forEach(routes, (route) => server.route(route))
                     });
+                    server.route(harvester.routes.getChangesStreaming())
                     resolve({server, harvester})
                 })
             })

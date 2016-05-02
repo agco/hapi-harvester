@@ -1,5 +1,8 @@
 #!/bin/bash
 
+apt-get update
+apt-get install -y curl
+
 MONGODB1=`ping -c 1 mongo1 | head -1  | cut -d "(" -f 2 | cut -d ")" -f 1`
 
 echo "Waiting for startup.."

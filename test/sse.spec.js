@@ -429,7 +429,7 @@ describe('SSE', function () {
                     url: '/changes/streaming'
                 }).then(function (res) {
                     expect(res).to.have.property('statusCode', 400)
-                    const expectedMessage = 'You have not specified any resources, please do so by providing "resource?foo,bar" as query'
+                    const expectedMessage = 'child "resources" fails because ["resources" is required]'
                     expect(res.result.errors[0]).to.have.property('message', expectedMessage)
                 })
             })
