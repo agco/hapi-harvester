@@ -186,6 +186,18 @@ describe('Filtering', function() {
             })
         })
     })
+
+    it('should convert a range query with lt= and gt= into a mongo query object', function () {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=lt=2008&filter[year]=gte=2006'})
+            .then((res) => {
+                expect(res.statusCode).to.equal(200)
+                expect(res.result.data).to.have.length(2)
+                _.forEach(res.result.data, function (item) {
+                    expect(item.attributes.year).to.be.least(2006)
+                    expect(item.attributes.year).to.be.below(2008)
+                });
+            })
+    })
     
     it('Won\'t be able to GET all from /brands with multiple filtering params where one is not available in attributes', function() {
         
