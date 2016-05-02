@@ -198,6 +198,15 @@ describe('Filtering', function() {
                 });
             })
     })
+
+    it('should allow array filter', function () {
+        return server.injectThen({method: 'get', url: '/brands?filter[year]=2008&filter[year]=2006'})
+            .then((res) => {
+                expect(res.statusCode).to.equal(200)
+                expect(res.result.data).to.have.length(2)
+                expect(_(res.result.data).pluck('attributes.year').uniq().value().sort()).to.eql([2006, 2008])
+            })
+    })
     
     it('Won\'t be able to GET all from /brands with multiple filtering params where one is not available in attributes', function() {
         
