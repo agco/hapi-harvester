@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "installing curl..."
 apt-get update
 apt-get install -y curl
 
