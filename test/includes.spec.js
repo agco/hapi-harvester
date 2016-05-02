@@ -197,6 +197,22 @@ describe('Inclusion', function () {
         });
     });
 
+    describe('repeated entities', function () {
+        it('should deduplicate included soulmate & lovers when querying people', function () {
+            return server.injectThen({method: 'get', url: '/people?include=soulmate,lovers,pets&filter[id]=abcdefff-b7f9-49dd-9842-f0a375f7dfdc'})
+                .then(function (res) {
+                    const body = res.result
+                    expect(body.included).to.be.an.Array
+                    expect(body.included).to.have.length(3)
+                    var log = {}
+                    _.each(body.included, function (person) {
+                        expect(log).to.not.have.property(person.id)
+                        log[`${person.type}:${person.id}`] = person
+                    })
+                })
+        })
+    })
+
     describe('compound documents', function () {
         it('should include pet and person when querying collars', function () {
             return server.injectThen({method: 'get', url: '/collars?include=collarOwner.owner.soulmate,collarOwner,collarOwner.owner'})
