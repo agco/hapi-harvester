@@ -18,6 +18,9 @@ const schema = {
             },
             soulmate: {
               data: {type: 'people'}
+            },
+            lovers: {
+                data: [{type: 'people'}]
             }
         }
     },
@@ -62,6 +65,9 @@ const data = {
                 },
                 soulmate: {
                     data: {type: 'people', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}
+                },
+                lovers: {
+                    data: [{type: 'people', id: 'c344d722-b7f9-49dd-9842-f0a375f7dfdc'}]
                 }
             }
         },
@@ -74,6 +80,9 @@ const data = {
             relationships: {
                 pets: {
                     data: [{type: 'pets', id: 'b344d722-b7f9-49dd-9842-f0a375f7dfdc'}]
+                },
+                lovers: {
+                    data: [{type: 'people', id: 'abcdefff-b7f9-49dd-9842-f0a375f7dfdc'}]
                 }
             }
         }
@@ -148,14 +157,25 @@ describe('Inclusion', function () {
 
             });
         });
+        it('should include referenced lovers when querying people only in data section', function () {
+            return server.injectThen({method: 'get', url: '/people?include=lovers'}).then(function (res) {
+                expect(res.statusCode).to.equal(200);
+                const body = res.result;
+                expect(body.data).to.have.length(2);
+                expect(body).to.have.property('included');
+                expect(body.included).to.be.an.Array;
+                expect(body.included).to.have.length(0);
+
+            });
+        });
     });
 
     describe('one to one', function () {
         it('should include soulmate when querying people', function () {
-            return server.injectThen({method: 'get', url: '/people?include=soulmate'}).then(function (res) {
+            return server.injectThen({method: 'get', url: '/people?include=soulmate&filter[id]=abcdefff-b7f9-49dd-9842-f0a375f7dfdc'}).then(function (res) {
                 expect(res.statusCode).to.equal(200);
                 const body = res.result;
-                expect(body.data).to.have.length(2);
+                expect(body.data).to.have.length(1);
                 expect(body).to.have.property('included');
                 expect(body.included).to.be.an.Array;
                 expect(body.included).to.have.length(1);
