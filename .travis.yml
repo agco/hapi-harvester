@@ -1,19 +1,17 @@
 language: node_js
 node_js:
-  - '4'
+- '4'
 services:
-  - docker
+- docker
 before_script:
-  - npm run-script setup
+- npm run-script setup
 script: npm test
 deploy:
   provider: npm
   email: developer@agcocorp.com
   api_key:
-    secure: "ZOFUbJMY9nu1ekRB51bpSMm3DgOsIf3TrqFrW4YflLnLzWIGQTT/K7p+Fjw+uf3GMNojrH8sTT1TyBustt08fobm0iRQq1FhT0xRzz+NsAqGC+DdbbNyUYoKvKGJ3sFvX0XJc65eFu5Zafaf9XidubG9l44INEkNGmpzwY5zy+M="
+    secure: gIVFXyMn+tTFAu0Xb12/aG0gFulpbib8Vy8MrkjFix1EI7lq5lj4Rbqx9Lg26TVcAgjAjl6rzX1n0k35HlPQYL1QcOplHmfT9IxTt5KqvQX2ZCLjWJdbMUZ9guqxVGGKZ0vgaEB848coAFtEFpqkv/s/dgadYmA8vBOCdFydbnfsiR+oUJU4cYplsmf2QY0s3nDsb08Sr12Pt7m+qdK3aWWaOeT/DsAxB9722ypmHJ0+Y4hX/ZcU5oc1c7nPGhC4ZFPSZoAXNFMMn6oBKFddZN5UKTAUV+X/at9lqfY79EJRufS1fjgfWNDiVcXKYVJsfKtrW7f1Az9uSB8A/jJdkPPU1zRLEmE3Sg47jsXQIjDXYXYf4mGYhT05mgPm3wovyo+tgKCvToWzb2p9ZsrURzwNtmlasLNvfthpas0TIu5314EanOI+ESVeU0ywQO2pUe4eYG+8XeFLlyVb9x6A2EbLxF3rCd1sxbQJh72Hp5I3YTdqTZgfSysQwdzxNO+baWfFeAl/9cYXWkMO0CNTVdNP8q3ZWSGKF+4rOzLwf+67NAOkwrmGeQvA1tyGihpL9yQwGKuV58y2OpgisA3kQs/6OSh3lGuAeus9jVuOth1lafuuhBJoz2QJuRDRnAioVmCuvBjpnKMRNk7Vipq5z+QAOqrBuFBz9kZkSdQTF8M=
   on:
     tags: true
     repo: agco/hapi-harvester
     branch: master
-
-
