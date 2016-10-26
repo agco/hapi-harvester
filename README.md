@@ -13,14 +13,12 @@ Harvester is a Hapi plugin which enables you to define [JSONAPI 1.0](http://json
 // bootstrap a hapi server... and register the plugin
 server.register(
     [{
-      register: harvester, 
+      register: harvester,
       options: {
-        adapter: adapter({
-          mongodbUrl: 'mongodb://localhost/test', 
-          oplogConnectionString: 'mongodb://localhost/local'})  
+        adapter: adapter('mongodb://localhost/test')
       }
     }], () => {
-        // define a jsonapi schema 
+        // define a jsonapi schema
         var brands = {
             type: 'brands',
             attributes: {
@@ -29,14 +27,14 @@ server.register(
                 description: Joi.string()
             }
         }
-        
+
         const hh = server.plugins['hapi-harvester']
-        // register the routes 
+        // register the routes
         hh.routes.all(brands).forEach((route) => {
             server.route(route)
         })
         server.start()
-        
+
     })
 ```
 
@@ -44,13 +42,13 @@ The code for a more complete server can be found in the [/example](example/index
 
 ## Features
 
-#### JSON-API 1.0 
+#### JSON-API 1.0
 
 - [CRUD](http://jsonapi.org/format/#crud)
 - [Filtering](http://jsonapi.org/format/#fetching-filtering)
 - [Sorting](http://jsonapi.org/format/#fetching-sorting)
 - [Pagination](http://jsonapi.org/format/#fetching-pagination)
-- [Resource Relationships](http://jsonapi.org/format/#document-structure-resource-relationships) 
+- [Resource Relationships](http://jsonapi.org/format/#document-structure-resource-relationships)
 - [Inclusion of Linked Resources](http://jsonapi.org/format/#fetching-includes)
 - [Sparse fieldsets](http://jsonapi.org/format/#fetching-sparse-fieldsets)
 - [Errors](http://jsonapi.org/format/#errors)
@@ -58,7 +56,7 @@ The code for a more complete server can be found in the [/example](example/index
 #### Other  
 
 - Extended filter operators : lt, gt, lte, gte
-- Publish change events through [SSE](http://www.w3.org/TR/eventsource/) 
+- Publish change events through [SSE](http://www.w3.org/TR/eventsource/)
 
 ## Guides
 
