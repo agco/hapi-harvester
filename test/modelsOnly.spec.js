@@ -25,11 +25,7 @@ describe.only('Model syntax sugar', function () {
     afterEach(utils.createDefaultServerDestructor())
 
     it('should set the model in the server for a schema', function () {
-        harvester.model.set(schema.brands);
+        harvester.model.create(schema.brands);
         expect(server.plugins['hapi-harvester'].model.type).to.be.eq(schema.type)
     })
-
-
-
-
 })
