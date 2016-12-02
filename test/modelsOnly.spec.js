@@ -16,7 +16,7 @@ const schema = {
     }
 }
 
-describe('Models syntax sugar', function () {
+describe.only('Model syntax sugar', function () {
 
     beforeEach(function () {
         return utils.buildDefaultServer()
@@ -24,17 +24,11 @@ describe('Models syntax sugar', function () {
 
     afterEach(utils.createDefaultServerDestructor())
 
-    it('should set the models in the server for a schema', function () {
-        harvester.models.set(schema.brands);
-        expect(server.plugins['hapi-harvester'].models).to.not.be.undefined
-        //expect(harvester.adapter.routes).to.be.undefined
+    it('should set the model in the server for a schema', function () {
+        harvester.model.set(schema.brands);
+        expect(server.plugins['hapi-harvester'].model.type).to.be.eq(schema.type)
     })
 
-    // it('should set the models in the server for a schema and not set the routes', function () {
-    //     harvester.models.set(schema.brands);
-    //     expect(server.plugins['hapi-harvester'].routes).to.be.undefined
-    //     //expect(harvester.adapter.routes).to.be.undefined
-    // })
 
 
 
