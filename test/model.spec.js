@@ -16,7 +16,7 @@ const schema = {
     }
 }
 
-describe.only('Model syntax sugar', function () {
+describe('Model syntax sugar', function () {
 
     beforeEach(function () {
         return utils.buildDefaultServer()
