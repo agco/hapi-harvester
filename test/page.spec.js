@@ -35,6 +35,7 @@ describe('Paging', function() {
                 payload.attributes.year = 2000 + index;
                 brands.push(payload);
             });
+
             return seeder(server).dropCollectionsAndSeed({brands: brands});
         })
     });

@@ -84,9 +84,10 @@ describe('Swagger docs', function () {
 
     let server
 
-    before(function () {
+    before(function (done) {
         return createServer().then(function (result) {
             server = result
+            done()
         })
     })
 
@@ -191,7 +192,7 @@ describe('Swagger docs', function () {
                 }
             }
             _.forEach(models, function (item, key) {
-                expect(definitions[key]).to.eql(item)
+                expect(definitions[key]).to.eql(item);
             })
         })
         it('should describe GET /people parameters', function () {
