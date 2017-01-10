@@ -84,10 +84,9 @@ describe('Swagger docs', function () {
 
     let server
 
-    before(function (done) {
+    before(function () {
         return createServer().then(function (result) {
             server = result
-            done()
         })
     })
 

@@ -54,7 +54,7 @@ describe('Global Error Handling', function () {
     describe('Given a duplicate post that voilates a uniqueness constraint on a collection', () => {
         let Brands
 
-        beforeEach((done) => {
+        beforeEach(() => {
             Brands = server.plugins['hapi-harvester'].adapter.models.brands
 
             return Brands.remove({})
@@ -68,7 +68,6 @@ describe('Global Error Handling', function () {
                 })
             })
             .then(() => {
-                done()
                 // seed brand test data
                 return Brands.create(data);
             })
