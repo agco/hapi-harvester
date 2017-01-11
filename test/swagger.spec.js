@@ -191,7 +191,7 @@ describe('Swagger docs', function () {
                 }
             }
             _.forEach(models, function (item, key) {
-                expect(definitions[key]).to.eql(item)
+                expect(definitions[key]).to.eql(item);
             })
         })
         it('should describe GET /people parameters', function () {
