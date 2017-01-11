@@ -77,8 +77,12 @@ describe('Global Error Handling', function () {
             Brands.remove({})
                 .then(() => {
                     Brands.collection.dropAllIndexes((err) => {
-                        if (err) console.log('dropAllIndexes:', err)
-                        done()
+                        if (err) {
+                            console.log('dropAllIndexes:', err)
+                            done(err)
+                        } else {
+                            done()
+                        }
                     })
                 })
         })
