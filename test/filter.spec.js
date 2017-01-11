@@ -58,8 +58,8 @@ describe('Filtering', function() {
         })
     })
     
-    it('Will be able to GET all from /brands with a "greater than" comparator filtering param', function() {
-        return server.injectThen({method: 'get', url: '/brands?filter[year]=gt=2005'})
+    it('Will be able to GET all from /brands with a "greater than" comparator filtering param', function(done) {
+        server.injectThen({method: 'get', url: '/brands?filter[year]=gt=2005'})
         .then((res) => {
             expect(res.result.data).to.have.length(4)
             
@@ -76,6 +76,11 @@ describe('Filtering', function() {
                 expect(data.id).to.match(/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
                 expect(expectedResponses).to.include.something.that.deep.equals(data.attributes)
             })
+            
+            done();
+        })
+        .catch((error) => {
+            done(error)
         })
     })
     
