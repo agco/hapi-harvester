@@ -35,11 +35,11 @@
     "lodash": "^3.10.1",
     "mongodb": "2.2.19",
     "mongoose": "^4.2.8",
-    "node-uuid": "^1.4.3",
     "qs": "^6.0.0",
     "rx": "^4.0.7",
     "rx-node": "^1.0.1",
-    "susie": "^1.0.1"
+    "susie": "^1.0.1",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "agco-event-source-stream": "^1.1.1",

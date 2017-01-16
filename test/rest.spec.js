@@ -4,7 +4,7 @@ const _ = require('lodash')
 const Promise = require('bluebird')
 const Joi = require('joi')
 const utils = require('./utils');
-const uuid = require('node-uuid')
+const uuid = require('uuid')
 const seeder = require('./seeder');
 
 const schema = {
