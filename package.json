@@ -48,7 +48,7 @@
     "coveralls": "^2.11.2",
     "eventsource": "^0.2.1",
     "hapi": "16.1.0",
-    "hapi-swagger": "4.2.1",
+    "hapi-swagger": "7.5.0",
     "inert": "^4.1.0",
     "inject-then": "^2.0.8",
     "istanbul": "^0.4.5",
