@@ -204,7 +204,7 @@ describe('Filtering', function() {
             .then((res) => {
                 expect(res.statusCode).to.equal(200)
                 expect(res.result.data).to.have.length(2)
-                expect(_(res.result.data).pluck('attributes.year').uniq().value().sort()).to.eql([2006, 2008])
+                expect(_(res.result.data).map('attributes.year').uniq().value().sort()).to.eql([2006, 2008])
             })
     })
     

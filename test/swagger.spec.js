@@ -116,41 +116,6 @@ describe('Swagger docs', function () {
         })
         it('should describe models', function () {
             const models = {
-                fields: {
-                    type: 'object',
-                    properties: {}
-                },
-                page: {
-                    type: 'object',
-                    properties: {
-                        limit: {
-                            type: 'number'
-                        },
-                        offset: {
-                            type: 'number'
-                        }
-                    }
-                },
-                filter: {
-                    type: 'object',
-                    properties: {
-                        id: {
-                            type: 'string'
-                        },
-                        name: {
-                            type: 'string'
-                        },
-                        appearances: {
-                            type: 'string'
-                        },
-                        pets: {
-                            type: 'string'
-                        },
-                        soulmate: {
-                            type: 'string'
-                        }
-                    }
-                },
                 attributes: {
                     type: 'object',
                     properties: {
@@ -159,6 +124,22 @@ describe('Swagger docs', function () {
                         },
                         appearances: {
                             type: 'number'
+                        }
+                    }
+                },
+                data: {
+                    type: 'array',
+                    items: {
+                        $ref: '#/definitions/Model 1',
+                        type: 'object'
+                    }
+                },
+                pets: {
+                    type: 'object',
+                    properties: {
+                        data: {
+                            $ref: '#/definitions/data',
+                            type: 'array'
                         }
                     }
                 },
@@ -175,21 +156,17 @@ describe('Swagger docs', function () {
                         }
                     }
                 },
-                data: {
+                soulmate: {
                     type: 'object',
-                    required: ['id', 'type'],
                     properties: {
-                        id: {
-                            type: 'string',
-                            description: 'RFC4122 v4 UUID'
-                        },
-                        type: {
-                            type: 'string',
-                            enum: ['pets']
+                        data: {
+                            $ref: '#/definitions/Model 2',
+                            type: 'object'
                         }
                     }
                 }
             }
+            
             _.forEach(models, function (item, key) {
                 expect(definitions[key]).to.eql(item);
             })

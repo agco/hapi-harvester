@@ -158,7 +158,7 @@ describe('remote link', function () {
                     .then(function (response) {
                         expect(response.statusCode).to.equal(200);
                         const body = response.result;
-                        expect(_.pluck(body.included, 'id')).to.eql([that.authorId]);
+                        expect(_.map(body.included, 'id')).to.eql([that.authorId]);
                     });
             });
         });
@@ -170,7 +170,7 @@ describe('remote link', function () {
                     .then(function (response) {
                         expect(response.statusCode).to.equal(200);
                         const body = response.result;
-                        expect(_.pluck(body.included, 'id').sort()).to.eql([that.authorId, that.countryId].sort());
+                        expect(_.map(body.included, 'id').sort()).to.eql([that.authorId, that.countryId].sort());
                     });
             });
         });
@@ -182,7 +182,7 @@ describe('remote link', function () {
                     .then(function (response) {
                         expect(response.statusCode).to.equal(200);
                         const body = response.result;
-                        expect(_.pluck(body.included, 'id').sort()).to.eql([that.countryId, that.authorId, that.commentId].sort());
+                        expect(_.map(body.included, 'id').sort()).to.eql([that.countryId, that.authorId, that.commentId].sort());
                     });
             });
         });
